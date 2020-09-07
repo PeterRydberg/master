@@ -41,6 +41,10 @@ class Appendices(Generic[T]):
         self.appendices[key].update(value)
         self.lastchanged = datetime.now()
 
+    def delete(self, key: str):
+        del self.appendices[key]
+        self.lastchanged = datetime.now()
+
 
 class User:
     def __init__(self, age: int, sex: str, appendices: Appendices[T] = Appendices()) -> None:
@@ -70,4 +74,5 @@ if __name__ == "__main__":
     users = generate_users()
     users[0].appendices.add("head", "owie")
     users[0].appendices.add("knee", "ouch")
-    print(users[0].__dict__)
+    users[0].appendices.delete("knee")
+    print(users[0].appendices.appendices)
