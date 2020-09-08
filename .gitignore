@@ -129,9 +129,6 @@ dmypy.json
 .pyre/
 
 
-
-.vscode
-
 # Created by https://www.toptal.com/developers/gitignore/api/python,venv,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,venv,visualstudiocode
 
@@ -296,3 +293,8 @@ pip-selfcheck.json
 .history
 
 # End of https://www.toptal.com/developers/gitignore/api/python,venv,visualstudiocode
+
+
+
+datasets
+.vscode
