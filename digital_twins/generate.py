@@ -1,6 +1,6 @@
 from random import choice, randint, random, sample
 from typing import List
-from usertypes import Appendices
+from typings.usertypes import Appendices
 from uuid import UUID
 
 import uuid
