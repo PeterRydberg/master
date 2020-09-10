@@ -4,6 +4,7 @@ from usertypes import Appendices
 from uuid import UUID
 
 import uuid
+import boto3
 
 # From https://www.medicalschemes.com/medical_schemes_pmb/chronic_disease_list.htm
 chronic_diseases: List[str] = [
@@ -46,9 +47,12 @@ def generate_random_user() -> User:
     return User(age, sex, conditions)
 
 
+def update_dynamodb(users: List[User]) -> None:
+    dynamodb = boto3.resource('dynamodb')
+    print(users[0].__dict__)
+    print(dynamodb)
+
+
 if __name__ == "__main__":
     users = generate_users()
-    users[0].appendices.add("head", "owie")
-    users[0].appendices.add("knee", "ouch")
-    users[0].appendices.delete("knee")
-    print(users[0].__dict__)
+    update_dynamodb(users)
