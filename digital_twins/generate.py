@@ -1,7 +1,6 @@
 from random import choice, randint, random, sample
 from typing import List
 from typings.usertypes import Appendices
-from uuid import UUID
 
 import uuid
 import boto3
@@ -23,7 +22,7 @@ class User:
                  conditions: List[str] = [],
                  appendices: Appendices = Appendices()
                  ) -> None:
-        self.uuid: UUID = uuid.uuid4()
+        self.uuid: str = str(uuid.uuid4())
         self.age: int = age
         self.sex: str = sex
         self.conditions: List[str] = conditions
@@ -49,10 +48,15 @@ def generate_random_user() -> User:
 
 def update_dynamodb(users: List[User]) -> None:
     dynamodb = boto3.resource('dynamodb')
-    print(users[0].__dict__)
-    print(dynamodb)
+    user_table = dynamodb.Table('User')
+
+    for user in users:
+        dict_user = vars(user)
+        user_table.put_item(Item=dict_user)
+
+    print(f"\n{len(users)} users added to DynamoDB.")
 
 
 if __name__ == "__main__":
-    users = generate_users()
+    users = generate_users(amount=2)
     update_dynamodb(users)
