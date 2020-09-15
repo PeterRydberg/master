@@ -1,13 +1,15 @@
-from typing import Generic, Dict, TypeVar
+from typing import Dict, TypeVar
 from datetime import datetime
+import uuid
 
 
 # Types
 T = TypeVar('T')
 
 
-class Appendix(Generic[T]):
+class Appendix(dict):
     def __init__(self, value: T) -> None:
+        self.uuid: str = str(uuid.uuid4())
         self.created: datetime = datetime.now()
         self.lastchanged: datetime = datetime.now()
         self.value: T = value
@@ -17,26 +19,28 @@ class Appendix(Generic[T]):
         self.lastchanged = datetime.now()
 
 
-class Appendices():
+class Appendices(dict):
     def __init__(self) -> None:
-        self.appendices: Dict[str, Appendix[T]] = {}
+        self.appendices: Dict[str, Dict[str, Appendix]] = {}
         self.lastchanged: datetime = datetime.now()
 
-    def add(self, key: str, value: T):
-        self.appendices[key] = Appendix(value)
-        self.lastchanged: datetime = datetime.now()
-
-    def update(self, key: str, value: T):
-        self.appendices[key].update(value)
+    def add(self, appendix_type: str, value: T):
+        self.appendices[appendix_type] = Appendix(value)
         self.lastchanged = datetime.now()
 
-    def delete(self, key: str):
-        del self.appendices[key]
+    def update(self, appendix_type: str, value: T):
+        self.appendices[appendix_type].update(value)
         self.lastchanged = datetime.now()
 
-# Example: {
+    def delete(self, appendix_type: str):
+        del self.appendices[appendix_type]
+        self.lastchanged = datetime.now()
+
+# Example: appendices =
+# {
 #   "lungscans":
 #       {
+#           "uuid": "some uuid"
 #           "created": "2020-09-07 13:47:19.794394",
 #           "lastchanged": "2020-09-07 13:47:19.794394",
 #           "value": "https://www.somepointer.com/id"

@@ -58,5 +58,5 @@ def update_dynamodb(users: List[User]) -> None:
 
 
 if __name__ == "__main__":
-    users = generate_users(amount=2)
+    users = generate_users(amount=1000)
     update_dynamodb(users)
