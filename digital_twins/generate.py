@@ -1,6 +1,7 @@
 from random import choice, randint, random, sample
 from typing import List
 from typings.usertypes import Appendices
+from tqdm import tqdm
 
 import uuid
 import boto3
@@ -50,7 +51,7 @@ def update_dynamodb(users: List[User]) -> None:
     dynamodb = boto3.resource('dynamodb')
     user_table = dynamodb.Table('User')
 
-    for user in users:
+    for user in tqdm(users):
         dict_user = vars(user)
         user_table.put_item(Item=dict_user)
 
