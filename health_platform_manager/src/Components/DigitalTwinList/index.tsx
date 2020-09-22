@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import * as AWS from "aws-sdk";
 
 import { User } from "../../types/User";
+import DigitalTwinListElement from "./DigitalTwinListElement";
 
 import "./styles.css";
 
@@ -33,9 +34,7 @@ function DigitalTwinList({ className }: Props): JSX.Element {
     }, []);
 
     const userList = users.map((user) => (
-        <li key={user.uuid}>
-            {user.firstname} {user.lastname}
-        </li>
+        <DigitalTwinListElement user={user} />
     ));
 
     return (
