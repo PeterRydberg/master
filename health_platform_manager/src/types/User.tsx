@@ -18,3 +18,9 @@ interface Appendix {
     lastchanged: Date;
     value: any;
 }
+
+export interface ListUser {
+    uuid: string;
+    firstname: string;
+    lastname: string;
+}

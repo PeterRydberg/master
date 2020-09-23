@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-
-import { User } from "../../../types/User";
+import { ListUser } from "../../../types/User";
 
 import "./styles.css";
 
@@ -16,7 +15,7 @@ function DigitalTwinListElement({ user, className }: Props): JSX.Element {
 }
 
 interface Props {
-    user: User;
+    user: ListUser;
     className?: string;
 }
 

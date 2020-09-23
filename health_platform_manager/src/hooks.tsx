@@ -1,7 +1,7 @@
 import * as AWS from "aws-sdk";
 import { useEffect, useState } from "react";
 
-import { User } from "./types/User";
+import { ListUser, User } from "./types/User";
 
 AWS.config.update({
     region: "eu-west-2",
@@ -11,21 +11,49 @@ AWS.config.update({
 
 const docClient = new AWS.DynamoDB.DocumentClient();
 
-export function useUsers(): User[] | undefined | null {
-    const [users, setUsers] = useState<User[] | null>();
+interface Parameters {
+    TableName: string;
+    ProjectionExpression: string;
+    ExpressionAttributeNames: {
+        "#i": string;
+    };
+    Limit: number;
+    ExclusiveStartKey?: { [key: string]: string };
+}
+
+export function useUsers(
+    maxUsers: number = 10,
+    page: number = 1
+): ListUser[] | undefined | null {
+    const [users, setUsers] = useState<ListUser[] | null>();
+    const [userPageKeys, setUserPageKeys] = useState<string[]>([]);
     useEffect((): void => {
-        let params = {
+        let params: Parameters = {
             TableName: "Users",
+            ProjectionExpression: "#i, firstname, lastname",
+            ExpressionAttributeNames: { "#i": "uuid" },
+            Limit: maxUsers,
         };
+
+        if (page > 1)
+            params["ExclusiveStartKey"] = { uuid: userPageKeys[page - 2] };
 
         docClient.scan(params, function (err, data) {
             if (err) {
                 console.log(err);
             } else {
-                data.Items ? setUsers(data.Items as User[]) : setUsers(null);
+                data.Items
+                    ? setUsers(data.Items as ListUser[])
+                    : setUsers(null);
+
+                const newKey = data.LastEvaluatedKey
+                    ? data.LastEvaluatedKey["uuid"]
+                    : null;
+                if (newKey && !userPageKeys.includes(newKey))
+                    setUserPageKeys([...userPageKeys, newKey]);
             }
         });
-    }, []);
+    }, [maxUsers, userPageKeys, page]);
     return users;
 }
 
