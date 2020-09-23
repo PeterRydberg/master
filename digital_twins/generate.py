@@ -89,22 +89,13 @@ def create_users_table(table_name: str, dynamodb=None):
             {
                 'AttributeName': 'uuid',
                 'KeyType': 'HASH'
-            },
-            {
-                'AttributeName': 'lastname',
-                'KeyType': 'RANGE'
             }
         ],
         AttributeDefinitions=[
             {
                 'AttributeName': 'uuid',
                 'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'lastname',
-                'AttributeType': 'S'
-            },
-
+            }
         ],
         ProvisionedThroughput={
             'ReadCapacityUnits': 10,
