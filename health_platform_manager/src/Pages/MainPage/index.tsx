@@ -3,15 +3,15 @@ import DigitalTwinList from "../../Components/DigitalTwinList";
 import "./styles.css";
 
 function MainPage({ className }: Props): JSX.Element {
-  return (
-    <div className={`main-page ${className || ""}`}>
-      <DigitalTwinList />
-    </div>
-  );
+    return (
+        <div className={`main-page ${className || ""}`}>
+            <DigitalTwinList />
+        </div>
+    );
 }
 
 interface Props {
-  className?: string;
+    className?: string;
 }
 
 export default MainPage;
