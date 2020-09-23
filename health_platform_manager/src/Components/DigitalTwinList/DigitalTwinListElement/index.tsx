@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 import { User } from "../../../types/User";
 
@@ -6,13 +7,10 @@ import "./styles.css";
 
 function DigitalTwinListElement({ user, className }: Props): JSX.Element {
     return (
-        <li
-            key={user.uuid}
-            className={`digital-twin-list-element ${className || ""}`}
-        >
-            <a href={`/user/${user.uuid}`}>
+        <li className={`digital-twin-list-element ${className || ""}`}>
+            <Link to={`/user/${user.uuid}`}>
                 {user.firstname} {user.lastname}
-            </a>
+            </Link>
         </li>
     );
 }
