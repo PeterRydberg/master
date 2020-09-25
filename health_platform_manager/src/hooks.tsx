@@ -24,37 +24,67 @@ interface Parameters {
 export function useUsers(
     maxUsers: number = 10,
     page: number = 1
-): ListUser[] | undefined | null {
-    const [users, setUsers] = useState<ListUser[] | null>();
+): [ListUser[] | undefined, boolean] {
+    const [users, setUsers] = useState<ListUser[]>([]);
     const [userPageKeys, setUserPageKeys] = useState<string[]>([]);
+    const [userPageSet, setUserPageSet] = useState<ListUser[]>([]);
+    const [lastPage, setLastPage] = useState<boolean>(false);
+
     useEffect((): void => {
-        let params: Parameters = {
-            TableName: "Users",
-            ProjectionExpression: "#i, firstname, lastname",
-            ExpressionAttributeNames: { "#i": "uuid" },
-            Limit: maxUsers,
-        };
+        if (page > userPageKeys.length) {
+            let params: Parameters = {
+                TableName: "Users",
+                ProjectionExpression: "#i, firstname, lastname",
+                ExpressionAttributeNames: { "#i": "uuid" },
+                Limit: maxUsers,
+            };
 
-        if (page > 1)
-            params["ExclusiveStartKey"] = { uuid: userPageKeys[page - 2] };
+            if (page > 1)
+                params["ExclusiveStartKey"] = { uuid: userPageKeys[page - 2] };
 
-        docClient.scan(params, function (err, data) {
-            if (err) {
-                console.log(err);
-            } else {
-                data.Items
-                    ? setUsers(data.Items as ListUser[])
-                    : setUsers(null);
+            docClient.scan(params, function (err, data) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    if (data.Items?.length) {
+                        setUsers((users) => [
+                            ...users,
+                            ...(data.Items as ListUser[]),
+                        ]);
+                        setUserPageSet(data.Items as ListUser[]);
+                    } else {
+                        setLastPage(
+                            userPageKeys[page - 1] === null ||
+                                page > userPageKeys.length
+                        );
+                        setUserPageSet([]);
+                        return;
+                    }
 
-                const newKey = data.LastEvaluatedKey
-                    ? data.LastEvaluatedKey["uuid"]
-                    : null;
-                if (newKey && !userPageKeys.includes(newKey))
-                    setUserPageKeys([...userPageKeys, newKey]);
-            }
-        });
-    }, [maxUsers, userPageKeys, page]);
-    return users;
+                    const newKey = data.LastEvaluatedKey
+                        ? data.LastEvaluatedKey["uuid"]
+                        : null;
+
+                    if (
+                        (newKey && !userPageKeys.includes(newKey)) ||
+                        (newKey === null &&
+                            !userPageKeys[userPageKeys.length - 1] !== null)
+                    )
+                        setUserPageKeys((userPageKeys) => [
+                            ...userPageKeys,
+                            newKey,
+                        ]);
+                }
+            });
+        } else {
+            setLastPage(
+                userPageKeys[page - 1] === null || page > userPageKeys.length
+            );
+            setUserPageSet(users.slice((page - 1) * maxUsers, page * maxUsers));
+        }
+    }, [maxUsers, page]);
+
+    return [userPageSet, lastPage];
 }
 
 export function useUser(uuid: string): User | undefined | null {

@@ -7,7 +7,7 @@ import "./styles.css";
 
 function DigitalTwinList({ className }: Props): JSX.Element {
     const [page, setpage] = useState<number>(1);
-    const users = useUsers(10, page);
+    const [users, lastpage] = useUsers(10, page);
 
     const onClickRight = useCallback(() => {
         setpage(page + 1);
@@ -18,20 +18,34 @@ function DigitalTwinList({ className }: Props): JSX.Element {
     }, [page]);
 
     if (users === undefined) return <></>;
-    if (users === null || !users.length) return <span>No users found.</span>;
 
-    const userList = users.map((user) => (
-        <DigitalTwinListElement user={user} key={user.uuid} />
-    ));
+    const userList = (
+        <ul>
+            {users.map((user) => (
+                <DigitalTwinListElement user={user} key={user.uuid} />
+            ))}
+        </ul>
+    );
+
+    const content =
+        users === null || !users.length ? (
+            <span>No users found.</span>
+        ) : (
+            userList
+        );
 
     return (
         <div className={`digital-twin-list ${className || ""}`}>
-            <ul>{userList}</ul>
-            <button onClick={onClickLeft} disabled={page < 2}>
-                {page - 1}
-            </button>
-            {page}
-            <button onClick={onClickRight}>{page + 1}</button>
+            {content}
+            <div>
+                <button onClick={onClickLeft} disabled={page < 2}>
+                    {"<--"}
+                </button>
+                {page}
+                <button onClick={onClickRight} disabled={lastpage}>
+                    {"-->"}
+                </button>
+            </div>
         </div>
     );
 }
