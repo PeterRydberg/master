@@ -1,0 +1,12 @@
+.appendix-adder {
+    margin-top: 1rem;
+    border: 1px;
+    border-radius: 0.5rem;
+}
+
+input,
+select,
+button {
+    margin-top: 0.5rem;
+    display: block;
+}
