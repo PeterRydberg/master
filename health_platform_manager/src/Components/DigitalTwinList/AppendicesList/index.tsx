@@ -4,9 +4,16 @@ import { Appendices } from "../../../types/Appendices";
 import "./styles.css";
 
 function useInput(
-    inputProps: FileProps
+    inputProps: FileProps,
+    inputType?: string
 ): { inputValue: string; inputElement: JSX.Element } {
     const [inputValue, setInputValue] = useState<string>("");
+
+    /*if (inputType)
+        inputProps["accept"] = `${inputType}\\${inputProps["accept"]
+            .split("\\")
+            .pop()}`;*/
+
     const inputElement = (
         <input
             {...inputProps}
@@ -55,7 +62,7 @@ const fileProps: FileProps = {
     type: "file",
     id: "appendix_paths",
     accept: ".nii.gz",
-    multiple: true,
+    multiple: false,
 };
 
 const dropdownProps: DropdownProps = {
@@ -73,11 +80,11 @@ const dropdownOptions: string[] = [
 ];
 
 function AppendicesList({ appendices, className }: Props): JSX.Element {
-    const { inputValue, inputElement } = useInput(fileProps);
     const { selectValue, selectElement } = useSelect(
         dropdownProps,
         dropdownOptions
     );
+    const { inputValue, inputElement } = useInput(fileProps, selectValue);
 
     const content = !Object.keys(appendices).length ? (
         <span>No appendices to show.</span>
@@ -98,8 +105,6 @@ function AppendicesList({ appendices, className }: Props): JSX.Element {
             </div>
         ))
     );
-
-    console.log(createFilePath(inputValue, selectValue, false));
 
     return (
         <div className={`appendices-list ${className || ""}`}>
