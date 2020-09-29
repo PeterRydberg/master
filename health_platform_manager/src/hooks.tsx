@@ -2,14 +2,13 @@ import * as AWS from "aws-sdk";
 import { useEffect, useState } from "react";
 
 import { ListUser, User } from "./types/User";
+import { docClient } from "./services/aws";
 
 AWS.config.update({
     region: "eu-west-2",
     accessKeyId: process.env.REACT_APP_AWS_PUBLIC_KEY,
     secretAccessKey: process.env.REACT_APP_AWS_SECRET_KEY,
 });
-
-const docClient = new AWS.DynamoDB.DocumentClient();
 
 interface Parameters {
     TableName: string;

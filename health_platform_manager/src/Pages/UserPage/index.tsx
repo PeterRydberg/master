@@ -42,7 +42,7 @@ function UserPage({ className }: Props): JSX.Element {
                 )}
 
                 <h2>Appendices</h2>
-                <AppendicesList appendices={user.appendices} />
+                <AppendicesList uuid={user.uuid} appendices={user.appendices} />
             </div>
         </div>
     );

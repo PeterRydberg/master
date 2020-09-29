@@ -1,5 +1,8 @@
 import React, { useState } from "react";
+
+import { addAWSAppendix } from "../../../services/aws";
 import { Appendices } from "../../../types/Appendices";
+import { User } from "../../../types/User";
 
 import "./styles.css";
 
@@ -79,7 +82,7 @@ const dropdownOptions: string[] = [
     "prostate",
 ];
 
-function AppendicesList({ appendices, className }: Props): JSX.Element {
+function AppendicesList({ uuid, appendices, className }: Props): JSX.Element {
     const { selectValue, selectElement } = useSelect(
         dropdownProps,
         dropdownOptions
@@ -90,21 +93,41 @@ function AppendicesList({ appendices, className }: Props): JSX.Element {
         <span>No appendices to show.</span>
     ) : (
         Object.entries(appendices.appendices).map(([key, appendixList]) => (
-            <div>
+            <div key={key}>
                 <h3>Type {key}:</h3>
-                <div key={key}>
-                    {Object.entries(appendixList).map(([name, appendix]) => (
-                        <div key={name}>
-                            <h4>Appendix name {name}:</h4>
-                            <p>Created: {appendix.created}</p>
-                            <p>Last changed: {appendix.lastchanged}</p>
-                            <p>Contents: {appendix.value}</p>
+                <div className="appendices">
+                    {Object.entries(appendixList).map(([uuid, appendix]) => (
+                        <div key={uuid}>
+                            <h4>
+                                Appendix created{" "}
+                                {new Date(
+                                    appendix.created
+                                ).toLocaleDateString()}
+                                :
+                            </h4>
+                            <p>
+                                Last changed:{" "}
+                                {new Date(
+                                    appendix.lastchanged
+                                ).toLocaleDateString()}
+                            </p>
+                            <p>Content path: "{appendix.value}"</p>
                         </div>
                     ))}
                 </div>
             </div>
         ))
     );
+
+    const addAppendix = (): User | void => {
+        const appendix = {
+            created: Date.now(),
+            lastchanged: Date.now(),
+            value: createFilePath(inputValue, selectValue, false),
+        };
+
+        return addAWSAppendix(uuid, selectValue, appendix);
+    };
 
     return (
         <div className={`appendices-list ${className || ""}`}>
@@ -113,13 +136,19 @@ function AppendicesList({ appendices, className }: Props): JSX.Element {
                 <label>Add appendix: </label>
                 {selectElement}
                 {inputElement}
-                <button disabled={!inputValue || !selectValue}>Submit</button>
+                <button
+                    disabled={!inputValue || !selectValue}
+                    onClick={addAppendix}
+                >
+                    Submit
+                </button>
             </div>
         </div>
     );
 }
 
 interface Props {
+    uuid: string;
     appendices: Appendices;
     className?: string;
 }

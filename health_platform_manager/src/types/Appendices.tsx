@@ -1,5 +1,5 @@
 export interface Appendices {
-    lastchanged: Date;
+    lastchanged: number;
     appendices: {
         [appendixType: string]: {
             [uuid: string]: Appendix;
@@ -8,8 +8,7 @@ export interface Appendices {
 }
 
 export interface Appendix {
-    uuid: string;
-    created: Date;
-    lastchanged: Date;
+    created: number;
+    lastchanged: number;
     value: any;
 }
