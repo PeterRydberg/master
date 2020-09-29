@@ -22,13 +22,30 @@ interface Parameters {
         [key: string]: string;
     };
     ExpressionAttributeValues?: {
-        [key: string]: {
-            [maptype: string]:
-                | { [type: string]: number | string }
-                | number
-                | string;
-        };
+        [key: string]:
+            | {
+                  [maptype: string]:
+                      | { [type: string]: number | string }
+                      | number
+                      | string;
+              }
+            | any;
     };
+}
+
+function spreadAttributes(
+    attributes: string[]
+): [{ [key: string]: string }, string] {
+    const attributeDict: { [key: string]: string } = {};
+    let attributeString: string = "";
+
+    attributes.forEach((element, index) => {
+        const attrLetter = String.fromCharCode(97 + index);
+        attributeDict[`#${attrLetter}`] = element;
+        attributeString += `#${attrLetter}.`;
+    });
+
+    return [attributeDict, attributeString.slice(0, -1)];
 }
 
 function updateAWSUser(params: Parameters): User | void {
@@ -43,14 +60,20 @@ function updateAWSUser(params: Parameters): User | void {
 
 export function updateUserAttribute(
     uuid: string,
-    attribute: string,
-    value: string
+    attributes: string[],
+    value: string | boolean | number
 ): User | void {
+    const [attributeDict, attributeString] = spreadAttributes(attributes);
+
     let params: Parameters = {
         TableName: "Users",
         Key: { uuid: uuid },
         ReturnValues: "ALL_NEW",
-        UpdateExpression: `set ${attribute} = ${value}`,
+        UpdateExpression: `set ${attributeString} = :val`,
+        ExpressionAttributeNames: attributeDict,
+        ExpressionAttributeValues: {
+            ":val": value,
+        },
     };
 
     return updateAWSUser(params);
@@ -84,7 +107,7 @@ export function makeUuid(
             "#attribute": attribute,
         },
         ExpressionAttributeValues: {
-            ":date": { N: Date.now() },
+            ":date": Date.now(),
             ":appendix": {
                 created: value.created,
                 lastchanged: value.lastchanged,
@@ -110,7 +133,7 @@ export function makeAttribute(uuid: string, attribute: string): void {
         },
         ExpressionAttributeValues: {
             ":emptymap": {},
-            ":date": { N: Date.now() },
+            ":date": Date.now(),
         },
     };
 
@@ -128,7 +151,7 @@ export function makeAppendices(uuid: string): void {
             `,
         ExpressionAttributeValues: {
             ":emptymap": {},
-            ":date": { N: Date.now() },
+            ":date": Date.now(),
         },
     };
 

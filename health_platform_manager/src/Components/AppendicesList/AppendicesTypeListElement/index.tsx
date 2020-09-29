@@ -5,7 +5,8 @@ import AppendicesListElement from "../AppendicesListElement";
 import "./styles.css";
 
 function AppendicesTypeListElement({
-    elementKey,
+    appendixType,
+    userUuid,
     appendixList,
     className,
 }: Props): JSX.Element {
@@ -13,11 +14,13 @@ function AppendicesTypeListElement({
 
     const listContent = openList ? (
         <div className="list-content">
-            {Object.entries(appendixList).map(([uuid, appendix]) => (
+            {Object.entries(appendixList).map(([appendixUuid, appendix]) => (
                 <AppendicesListElement
-                    key={uuid}
-                    uuid={uuid}
+                    key={appendixUuid}
+                    userUuid={userUuid}
+                    appendixUuid={appendixUuid}
                     appendix={appendix}
+                    appendixType={appendixType}
                 />
             ))}
         </div>
@@ -27,11 +30,11 @@ function AppendicesTypeListElement({
 
     return (
         <div
-            key={elementKey}
+            key={appendixType}
             className={`appendices-type-list-element ${className || ""}`}
         >
             <div onClick={() => setOpenList(!openList)} className="togglable">
-                <h3>Type {elementKey} ⬇</h3>
+                <h3>Type {appendixType} ⬇</h3>
             </div>
             {listContent}
         </div>
@@ -39,7 +42,8 @@ function AppendicesTypeListElement({
 }
 
 interface Props {
-    elementKey: string;
+    appendixType: string;
+    userUuid: string;
     appendixList: { [uuid: string]: Appendix };
     className?: string;
 }

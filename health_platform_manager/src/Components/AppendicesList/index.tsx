@@ -95,10 +95,11 @@ function AppendicesList({ uuid, appendices, className }: Props): JSX.Element {
     ) : (
         <div className="appendices-list">
             {Object.entries(appendices.appendices).map(
-                ([key, appendixList]) => (
+                ([appendixType, appendixList]) => (
                     <AppendicesTypeListElement
-                        key={key}
-                        elementKey={key}
+                        key={appendixType}
+                        appendixType={appendixType}
+                        userUuid={uuid}
                         appendixList={appendixList}
                     />
                 )

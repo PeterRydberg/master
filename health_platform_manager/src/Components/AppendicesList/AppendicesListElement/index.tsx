@@ -1,14 +1,34 @@
-import React, { useState } from "react";
+import React, { ChangeEvent, useState } from "react";
+import { updateUserAttribute } from "../../../services/aws";
 import { Appendix } from "../../../types/Appendices";
+import { User } from "../../../types/User";
 
 import "./styles.css";
 
 function AppendicesListElement({
-    uuid,
+    userUuid,
+    appendixUuid,
     appendix,
+    appendixType,
     className,
 }: Props): JSX.Element {
     const [openAppendix, setOpenAppendix] = useState<boolean>(false);
+
+    const toggleConsent = (e: ChangeEvent<HTMLInputElement>): User | void => {
+        e.preventDefault();
+        const newState: boolean = !appendix.shareConsent ? true : false;
+        updateUserAttribute(
+            userUuid,
+            [
+                "appendices",
+                "appendices",
+                appendixType,
+                appendixUuid,
+                "shareConsent",
+            ],
+            newState
+        );
+    };
 
     const appendixContent = openAppendix ? (
         <div className="appendix-content">
@@ -37,6 +57,7 @@ function AppendicesListElement({
                     id="consent-checkbox"
                     value="Consent"
                     checked={appendix.shareConsent ? true : false}
+                    onChange={toggleConsent}
                 />
             </div>
         </div>
@@ -46,7 +67,7 @@ function AppendicesListElement({
 
     return (
         <div
-            key={uuid}
+            key={appendixUuid}
             className={`appendices-list-element ${className || ""}`}
         >
             <div
@@ -65,8 +86,10 @@ function AppendicesListElement({
 }
 
 interface Props {
-    uuid: string;
+    userUuid: string;
+    appendixUuid: string;
     appendix: Appendix;
+    appendixType: string;
     className?: string;
 }
 
