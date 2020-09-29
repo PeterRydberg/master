@@ -1,0 +1,15 @@
+.appendices-type-list-element {
+    border: 1px;
+    border-radius: 5px;
+    border-style: solid;
+    padding: 0 1rem 0 1rem;
+}
+
+.togglable {
+    cursor: pointer;
+    height: auto;
+}
+
+.list-content {
+    padding-bottom: 1rem;
+}

@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { addAWSAppendix } from "../../services/aws";
 import { Appendices } from "../../types/Appendices";
 import { User } from "../../types/User";
+import AppendicesTypeListElement from "./AppendicesTypeListElement";
 
 import "./styles.css";
 
@@ -92,30 +93,17 @@ function AppendicesList({ uuid, appendices, className }: Props): JSX.Element {
     const content = !Object.keys(appendices).length ? (
         <span>No appendices to show.</span>
     ) : (
-        Object.entries(appendices.appendices).map(([key, appendixList]) => (
-            <div key={key}>
-                <h3>Type {key}</h3>
-                <div className="appendices">
-                    {Object.entries(appendixList).map(([uuid, appendix]) => (
-                        <div key={uuid}>
-                            <h4>
-                                Appendix created{" "}
-                                {new Date(
-                                    appendix.created
-                                ).toLocaleDateString()}
-                            </h4>
-                            <p>
-                                Last changed:{" "}
-                                {new Date(
-                                    appendix.lastchanged
-                                ).toLocaleDateString()}
-                            </p>
-                            <p>Content path: "{appendix.value}"</p>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        ))
+        <div className="appendices-list">
+            {Object.entries(appendices.appendices).map(
+                ([key, appendixList]) => (
+                    <AppendicesTypeListElement
+                        key={key}
+                        elementKey={key}
+                        appendixList={appendixList}
+                    />
+                )
+            )}
+        </div>
     );
 
     const addAppendix = (): User | void => {
@@ -129,7 +117,7 @@ function AppendicesList({ uuid, appendices, className }: Props): JSX.Element {
     };
 
     return (
-        <div className={`appendices-list ${className || ""}`}>
+        <div className={`appendices ${className || ""}`}>
             {content}
             <div className="appendix-adder">
                 <label>Add appendix: </label>

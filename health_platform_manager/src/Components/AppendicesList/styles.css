@@ -1,7 +1,12 @@
+.appendices-list {
+    border: 1px;
+    border-radius: 5px;
+    border-style: solid;
+    padding: 1rem 1rem 1rem 1rem;
+}
+
 .appendix-adder {
     margin-top: 5rem;
-    border: 1px;
-    border-radius: 0.5rem;
 }
 
 input,
