@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import AppendicesList from "../../Components/AppendicesList";
 import { useUser } from "../../hooks";
 
@@ -20,6 +20,9 @@ function UserPage({ className }: Props): JSX.Element {
 
     return (
         <div className={`main-page ${className || ""}`}>
+            <Link to="/" className="home-icon">
+                ⬅
+            </Link>
             <h1>
                 {user.firstname} {user.lastname}
             </h1>
