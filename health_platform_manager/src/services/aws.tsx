@@ -96,7 +96,7 @@ export function makeUuid(
     return updateAWSUser(params);
 }
 
-export function makeAttribute(uuid: string, attribute: string): User | void {
+export function makeAttribute(uuid: string, attribute: string): void {
     let params: Parameters = {
         TableName: "Users",
         Key: { uuid: uuid },
@@ -114,10 +114,10 @@ export function makeAttribute(uuid: string, attribute: string): User | void {
         },
     };
 
-    return updateAWSUser(params);
+    updateAWSUser(params);
 }
 
-export function makeAppendices(uuid: string): User | void {
+export function makeAppendices(uuid: string): void {
     let params: Parameters = {
         TableName: "Users",
         Key: { uuid: uuid },
@@ -132,5 +132,5 @@ export function makeAppendices(uuid: string): User | void {
         },
     };
 
-    return updateAWSUser(params);
+    updateAWSUser(params);
 }

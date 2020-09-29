@@ -7,3 +7,19 @@
     position: absolute;
     font-size: 2em;
 }
+
+.personalia {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.personalia-item {
+    width: fit-content;
+    margin-top: 2.5rem;
+}
+
+.fullwidth {
+    width: 100%;
+}

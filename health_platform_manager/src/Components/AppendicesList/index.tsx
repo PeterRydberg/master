@@ -111,6 +111,7 @@ function AppendicesList({ uuid, appendices, className }: Props): JSX.Element {
             created: Date.now(),
             lastchanged: Date.now(),
             value: createFilePath(inputValue, selectValue, false),
+            shareConsent: false,
         };
 
         return addAWSAppendix(uuid, selectValue, appendix);

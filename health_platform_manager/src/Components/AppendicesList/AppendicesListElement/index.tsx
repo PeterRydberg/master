@@ -12,11 +12,33 @@ function AppendicesListElement({
 
     const appendixContent = openAppendix ? (
         <div className="appendix-content">
-            <p>
-                Last changed:{" "}
+            <div className="appendix-item">
+                <label>Last changed: </label>
                 {new Date(appendix.lastchanged).toLocaleDateString()}
-            </p>
-            <p>Content path: "{appendix.value}"</p>
+            </div>
+
+            <div className="appendix-item">
+                <label>Content path: </label>"{appendix.value}"
+            </div>
+
+            <div className="appendix-item">
+                <label>Automatic model evaluation: </label>[NONE]
+            </div>
+
+            <div className="appendix-item">
+                <label>Doctor evaluation: </label>[NONE]
+            </div>
+
+            <div className="appendix-item">
+                <label>Patient consent to information share:</label>
+                <input
+                    type="checkbox"
+                    name="consent"
+                    id="consent-checkbox"
+                    value="Consent"
+                    checked={appendix.shareConsent ? true : false}
+                />
+            </div>
         </div>
     ) : (
         <></>

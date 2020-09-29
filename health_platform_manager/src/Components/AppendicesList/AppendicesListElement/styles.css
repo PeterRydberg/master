@@ -10,5 +10,15 @@
 }
 
 .appendix-content {
+    display: flex;
+    flex-direction: row;
     padding-bottom: 1rem;
+}
+
+label {
+    font-weight: bold;
+}
+
+.appendix-item {
+    text-align: center;
 }

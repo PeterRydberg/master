@@ -27,25 +27,36 @@ function UserPage({ className }: Props): JSX.Element {
                 {user.firstname} {user.lastname}
             </h1>
             <div className="personalia">
-                <h2>Age</h2>
-                <span>{user.age}</span>
+                <div className="personalia-item">
+                    <h2>Age</h2>
+                    <span>{user.age}</span>
+                </div>
 
-                <h2>Sex</h2>
-                <span>{capitalize(user.sex)}.</span>
+                <div className="personalia-item">
+                    <h2>Sex</h2>
+                    <span>{capitalize(user.sex)}.</span>
+                </div>
 
-                <h2>Conditions</h2>
-                {user.conditions.length ? (
-                    <ul>
-                        {user.conditions.map((condition) => (
-                            <li>{condition}</li>
-                        ))}
-                    </ul>
-                ) : (
-                    <span>No conditions to show.</span>
-                )}
+                <div className="personalia-item">
+                    <h2>Conditions</h2>
+                    {user.conditions.length ? (
+                        <ul>
+                            {user.conditions.map((condition) => (
+                                <li>{condition}</li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <span>No conditions to show.</span>
+                    )}
+                </div>
 
-                <h2>Appendices</h2>
-                <AppendicesList uuid={user.uuid} appendices={user.appendices} />
+                <div className="personalia-item fullwidth">
+                    <h2>Appendices</h2>
+                    <AppendicesList
+                        uuid={user.uuid}
+                        appendices={user.appendices}
+                    />
+                </div>
             </div>
         </div>
     );

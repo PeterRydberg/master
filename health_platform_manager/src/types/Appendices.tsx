@@ -11,4 +11,5 @@ export interface Appendix {
     created: number;
     lastchanged: number;
     value: any;
+    shareConsent: boolean;
 }
