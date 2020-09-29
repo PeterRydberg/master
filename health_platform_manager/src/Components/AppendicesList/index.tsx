@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 
-import { addAWSAppendix } from "../../../services/aws";
-import { Appendices } from "../../../types/Appendices";
-import { User } from "../../../types/User";
+import { addAWSAppendix } from "../../services/aws";
+import { Appendices } from "../../types/Appendices";
+import { User } from "../../types/User";
 
 import "./styles.css";
 
@@ -94,7 +94,7 @@ function AppendicesList({ uuid, appendices, className }: Props): JSX.Element {
     ) : (
         Object.entries(appendices.appendices).map(([key, appendixList]) => (
             <div key={key}>
-                <h3>Type {key}:</h3>
+                <h3>Type {key}</h3>
                 <div className="appendices">
                     {Object.entries(appendixList).map(([uuid, appendix]) => (
                         <div key={uuid}>
@@ -103,7 +103,6 @@ function AppendicesList({ uuid, appendices, className }: Props): JSX.Element {
                                 {new Date(
                                     appendix.created
                                 ).toLocaleDateString()}
-                                :
                             </h4>
                             <p>
                                 Last changed:{" "}

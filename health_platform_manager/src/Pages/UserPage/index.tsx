@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import AppendicesList from "../../Components/DigitalTwinList/AppendicesList";
+import AppendicesList from "../../Components/AppendicesList";
 import { useUser } from "../../hooks";
 
 import { User } from "../../types/User";
