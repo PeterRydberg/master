@@ -1,5 +1,11 @@
 import * as AWS from "aws-sdk";
-import { useEffect, useState } from "react";
+import {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useState,
+} from "react";
 
 import { ListUser, User } from "./types/User";
 import { docClient } from "./services/aws";
@@ -9,6 +15,10 @@ AWS.config.update({
     accessKeyId: process.env.REACT_APP_AWS_PUBLIC_KEY,
     secretAccessKey: process.env.REACT_APP_AWS_SECRET_KEY,
 });
+
+interface UserSetter {
+    setFullUser: (user: User | null) => void;
+}
 
 interface Parameters {
     TableName: string;
@@ -43,7 +53,7 @@ export function useUsers(
 
             docClient.scan(params, function (err, data) {
                 if (err) {
-                    console.log(err);
+                    console.error(err);
                 } else {
                     if (data.Items?.length) {
                         setUsers((users) => [
@@ -86,8 +96,9 @@ export function useUsers(
     return [userPageSet, lastPage];
 }
 
-export function useUser(uuid: string): User | undefined | null {
+export function useUser(uuid: string): [User | null | undefined, UserSetter] {
     const [user, setUser] = useState<User | null>();
+
     useEffect((): void => {
         let params = {
             TableName: "Users",
@@ -96,11 +107,25 @@ export function useUser(uuid: string): User | undefined | null {
 
         docClient.get(params, function (err, data) {
             if (err) {
-                console.log(err);
+                console.error(err);
             } else {
                 data.Item ? setUser(data.Item as User) : setUser(null);
             }
         });
     }, [uuid]);
-    return user;
+
+    const setFullUser = useCallback((user: User | null): void => {
+        setUser(user);
+    }, []);
+
+    return [user, { setFullUser }];
+}
+
+export const UserContext = createContext<[User | null, UserSetter]>([
+    null,
+    { setFullUser: (): void => undefined },
+]);
+
+export function useUserContext(): [User | null, UserSetter] {
+    return useContext(UserContext);
 }

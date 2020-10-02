@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useState } from "react";
+import { useUserContext } from "../../../hooks";
 import { updateUserAttribute } from "../../../services/aws";
 import { Appendix } from "../../../types/Appendices";
-import { User } from "../../../types/User";
 
 import "./styles.css";
 
@@ -13,8 +13,9 @@ function AppendicesListElement({
     className,
 }: Props): JSX.Element {
     const [openAppendix, setOpenAppendix] = useState<boolean>(false);
+    const [, userSetters] = useUserContext(); // Should use user directly, might fix later
 
-    const toggleConsent = (e: ChangeEvent<HTMLInputElement>): User | void => {
+    const toggleConsent = (e: ChangeEvent<HTMLInputElement>): void => {
         e.preventDefault();
         const newState: boolean = !appendix.shareConsent ? true : false;
         updateUserAttribute(
@@ -27,7 +28,9 @@ function AppendicesListElement({
                 "shareConsent",
             ],
             newState
-        );
+        ).then((updatedUser) => {
+            if (updatedUser) userSetters.setFullUser(updatedUser);
+        });
     };
 
     const appendixContent = openAppendix ? (

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
+import { useUserContext } from "../../hooks";
 
 import { addAWSAppendix } from "../../services/aws";
 import { Appendices } from "../../types/Appendices";
-import { User } from "../../types/User";
 import AppendicesTypeListElement from "./AppendicesTypeListElement";
 
 import "./styles.css";
@@ -89,6 +89,7 @@ function AppendicesList({ uuid, appendices, className }: Props): JSX.Element {
         dropdownOptions
     );
     const { inputValue, inputElement } = useInput(fileProps, selectValue);
+    const [, userSetters] = useUserContext(); // Should use user directly, might fix later
 
     const content = !Object.keys(appendices).length ? (
         <span>No appendices to show.</span>
@@ -107,7 +108,7 @@ function AppendicesList({ uuid, appendices, className }: Props): JSX.Element {
         </div>
     );
 
-    const addAppendix = (): User | void => {
+    const addAppendix = (): void => {
         const appendix = {
             created: Date.now(),
             lastchanged: Date.now(),
@@ -115,7 +116,9 @@ function AppendicesList({ uuid, appendices, className }: Props): JSX.Element {
             shareConsent: false,
         };
 
-        return addAWSAppendix(uuid, selectValue, appendix);
+        addAWSAppendix(uuid, selectValue, appendix).then((updatedUser) => {
+            if (updatedUser) userSetters.setFullUser(updatedUser);
+        });
     };
 
     return (

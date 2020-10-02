@@ -48,21 +48,23 @@ function spreadAttributes(
     return [attributeDict, attributeString.slice(0, -1)];
 }
 
-function updateAWSUser(params: Parameters): User | void {
-    docClient.update(params, function (err, data) {
-        if (err) {
-            throw err;
-        } else {
-            return data;
-        }
-    });
+async function updateAWSUser(params: Parameters): Promise<User | void> {
+    return docClient
+        .update(params)
+        .promise()
+        .then((data) => {
+            return data.Attributes as User;
+        })
+        .catch((error) => {
+            console.error(error);
+        });
 }
 
-export function updateUserAttribute(
+export async function updateUserAttribute(
     uuid: string,
     attributes: string[],
     value: string | boolean | number
-): User | void {
+): Promise<User | void> {
     const [attributeDict, attributeString] = spreadAttributes(attributes);
 
     let params: Parameters = {
@@ -79,21 +81,21 @@ export function updateUserAttribute(
     return updateAWSUser(params);
 }
 
-export function addAWSAppendix(
+export async function addAWSAppendix(
     uuid: string,
     attribute: string,
     value: Appendix
-): User | void {
+): Promise<User | void> {
     makeAppendices(uuid);
     makeAttribute(uuid, attribute);
     return makeUuid(uuid, attribute, value);
 }
 
-export function makeUuid(
+export async function makeUuid(
     uuid: string,
     attribute: string,
     value: Appendix
-): User | void {
+): Promise<User | void> {
     let params: Parameters = {
         TableName: "Users",
         Key: { uuid: uuid },
