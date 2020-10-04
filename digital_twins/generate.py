@@ -106,5 +106,5 @@ def create_users_table(table_name: str, dynamodb=None):
 
 
 if __name__ == "__main__":
-    users = generate_users(amount=100)
+    users = generate_users(amount=1)
     update_dynamodb(users)

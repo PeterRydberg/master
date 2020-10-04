@@ -1,15 +1,12 @@
 from typing import Dict, TypeVar
 from datetime import datetime
-import uuid
 
 
-# Types
 T = TypeVar('T')
 
 
 class Appendix(dict):
     def __init__(self, value: T) -> None:
-        self.uuid: str = str(uuid.uuid4())
         self.created: datetime = datetime.now()
         self.lastchanged: datetime = datetime.now()
         self.value: T = value
