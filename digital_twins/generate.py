@@ -4,11 +4,10 @@ from tqdm import tqdm
 from typing import List
 from mypy_boto3_dynamodb.service_resource import Table
 from botocore.exceptions import ClientError
-from typings.usertypes import Appendices
-
-import uuid
 import boto3
 import names
+
+from User import User
 
 # From https://www.medicalschemes.com/medical_schemes_pmb/chronic_disease_list.htm
 chronic_diseases: List[str] = [
@@ -18,24 +17,6 @@ chronic_diseases: List[str] = [
     "Hyperlipidaemia", "Hypertension", "Hypothyroidism", "Multiple sclerosis", "Parkinson's disease",
     "Rheumatoid arthritis", "Schizophrenia", "Systemic lupus erythematosus", "Ulcerative colitis",
     "Bipolar Mood Disorder"]
-
-
-class User:
-    def __init__(self,
-                 age: int,
-                 sex: str,
-                 firstname: str,
-                 lastname: str,
-                 conditions: List[str] = [],
-                 appendices: Appendices = Appendices()
-                 ) -> None:
-        self.uuid: str = str(uuid.uuid4())
-        self.age: int = age
-        self.sex: str = sex
-        self.firstname: str = firstname
-        self.lastname: str = lastname
-        self.conditions: List[str] = conditions
-        self.appendices: Appendices = appendices
 
 
 def generate_users(amount: int = 1000) -> List[User]:
