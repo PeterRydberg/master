@@ -4,7 +4,7 @@ from Appendices import Appendices
 import uuid
 
 
-class User:
+class DigitalTwin:
     def __init__(self,
                  age: int,
                  sex: str,
@@ -20,3 +20,4 @@ class User:
         self.lastname: str = lastname
         self.conditions: List[str] = conditions
         self.appendices: Appendices = appendices
+        self.models = []

@@ -5,7 +5,7 @@ from datetime import datetime
 T = TypeVar('T')
 
 
-class Appendix(dict):
+class Image(dict):
     def __init__(self, value: T) -> None:
         self.created: datetime = datetime.now()
         self.lastchanged: datetime = datetime.now()
@@ -18,11 +18,11 @@ class Appendix(dict):
 
 class Appendices(dict):
     def __init__(self) -> None:
-        self.appendices: Dict[str, Dict[str, Appendix]] = {}
+        self.appendices: Dict[str, Dict[str, Image]] = {}
         self.lastchanged: datetime = datetime.now()
 
     def add(self, appendix_type: str, value: T):
-        self.appendices[appendix_type] = Appendix(value)
+        self.appendices[appendix_type] = Image(value)
         self.lastchanged = datetime.now()
 
     def update(self, appendix_type: str, value: T):
@@ -33,13 +33,22 @@ class Appendices(dict):
         del self.appendices[appendix_type]
         self.lastchanged = datetime.now()
 
+
 # Example: appendices =
 # {
-#   "lungscans":
-#       {
-#           "uuid": "some uuid"
-#           "created": "2020-09-07 13:47:19.794394",
-#           "lastchanged": "2020-09-07 13:47:19.794394",
-#           "value": "https://www.somepointer.com/id"
-#       }
+#     "lastchanged": 1601658908526,
+#     "appendices": {
+#         "lungscans": {
+#             "[uuid]"{
+#                 "created": 1601658908526,
+#                 "lastchanged": 1601658908526,
+#                 "value": "[data_source]"
+#             }
+#             "[uuid2]"{
+#                 "created": 1601658908526,
+#                 "lastchanged": 1601658908526,
+#                 "value": "[data_source]"
+#             }
+#         }
+#     }
 # }

@@ -1,6 +1,6 @@
 {
     "python.analysis.extraPaths": [
-        "./digital_twins",
+        "./digital_twin",
         "./knowledge_base",
         "./knowledge_generation_engine"
     ]

@@ -7,7 +7,7 @@ from botocore.exceptions import ClientError
 import boto3
 import names
 
-from User import User
+from DigitalTwin import DigitalTwin
 
 # From https://www.medicalschemes.com/medical_schemes_pmb/chronic_disease_list.htm
 chronic_diseases: List[str] = [
@@ -19,48 +19,48 @@ chronic_diseases: List[str] = [
     "Bipolar Mood Disorder"]
 
 
-def generate_users(amount: int = 1000) -> List[User]:
-    users: List[User] = []
+def generate_digital_twins(amount: int = 1000) -> List[DigitalTwin]:
+    digital_twins: List[DigitalTwin] = []
 
     for _ in range(amount):
-        users.append(generate_random_user())
+        digital_twins.append(generate_random_digital_twin())
 
-    return users
+    return digital_twins
 
 
-def generate_random_user() -> User:
+def generate_random_digital_twin() -> DigitalTwin:
     age: int = randint(0, 120)
     sex: str = choice(["male", "female"])
     firstname: str = names.get_first_name(gender=sex)
     lastname: str = names.get_last_name()
     conditions: List[str] = sample(chronic_diseases, 1 if random() > 0.97 else 0)
 
-    return User(age, sex, firstname, lastname, conditions)
+    return DigitalTwin(age, sex, firstname, lastname, conditions)
 
 
-def update_dynamodb(users: List[User]) -> None:
+def update_dynamodb(digital_twins: List[DigitalTwin]) -> None:
     dynamodb = boto3.resource(service_name='dynamodb')
-    user_table: Table = dynamodb.Table('Users')
+    digital_twin_table: Table = dynamodb.Table('DigitalTwins')
 
     try:
-        user_table.creation_date_time
+        digital_twin_table.creation_date_time
     except ClientError as e:
         error_code = e.response['Error']['Code']
         if error_code == "ResourceNotFoundException":
             print("Creating new table...")
-            user_table = create_users_table(table_name="Users")
+            digital_twin_table = create_digital_twins_table(table_name="DigitalTwins")
             print("Table created!")
         else:
             print(e)
 
-    for user in tqdm(users):
-        dict_user = vars(user)
-        user_table.put_item(Item=dict_user)
+    for digital_twin in tqdm(digital_twins):
+        dict_digital_twin = vars(digital_twin)
+        digital_twin_table.put_item(Item=dict_digital_twin)
 
-    print(f"\n{len(users)} users added to DynamoDB.")
+    print(f"\n{len(digital_twins)} digital twins added to DynamoDB.")
 
 
-def create_users_table(table_name: str, dynamodb=None):
+def create_digital_twins_table(table_name: str, dynamodb=None):
     if not dynamodb:
         dynamodb = boto3.resource('dynamodb')
 
@@ -87,5 +87,5 @@ def create_users_table(table_name: str, dynamodb=None):
 
 
 if __name__ == "__main__":
-    users = generate_users(amount=1)
-    update_dynamodb(users)
+    digital_twins = generate_digital_twins(amount=99)
+    update_dynamodb(digital_twins)
