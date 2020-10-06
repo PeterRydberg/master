@@ -1,11 +1,11 @@
-.appendices-list {
+.dicom-categories-list {
     border: 1px;
     border-radius: 5px;
     border-style: solid;
     padding: 1rem 1rem 1rem 1rem;
 }
 
-.appendix-adder {
+.image-adder {
     margin-top: 5rem;
 }
 

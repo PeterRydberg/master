@@ -1,13 +1,13 @@
 import React, { useCallback, useState } from "react";
 
 import DigitalTwinListElement from "./DigitalTwinListElement";
-import { useUsers } from "../../hooks";
+import { useDigitalTwins } from "../../hooks";
 
 import "./styles.css";
 
 function DigitalTwinList({ className }: Props): JSX.Element {
     const [page, setpage] = useState<number>(1);
-    const [users, lastpage] = useUsers(10, page);
+    const [digitalTwins, lastpage] = useDigitalTwins(10, page);
 
     const onClickRight = useCallback(() => {
         setpage(page + 1);
@@ -17,21 +17,24 @@ function DigitalTwinList({ className }: Props): JSX.Element {
         setpage(page - 1);
     }, [page]);
 
-    if (users === undefined) return <></>;
+    if (digitalTwins === undefined) return <></>;
 
-    const userList = (
+    const digitalTwinList = (
         <ul>
-            {users.map((user) => (
-                <DigitalTwinListElement user={user} key={user.uuid} />
+            {digitalTwins.map((digitalTwin) => (
+                <DigitalTwinListElement
+                    digitalTwin={digitalTwin}
+                    key={digitalTwin.uuid}
+                />
             ))}
         </ul>
     );
 
     const content =
-        users === null || !users.length ? (
-            <span>No users found.</span>
+        digitalTwins === null || !digitalTwins.length ? (
+            <span>No digitalTwins found.</span>
         ) : (
-            userList
+            digitalTwinList
         );
 
     return (

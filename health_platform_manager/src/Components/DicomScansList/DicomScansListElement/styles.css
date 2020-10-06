@@ -1,4 +1,4 @@
-.appendices-list-element {
+.dicom-scans-list-element {
     border: 1px;
     border-radius: 5px;
     border-style: solid;
@@ -9,7 +9,7 @@
     cursor: pointer;
 }
 
-.appendix-content {
+.image-content {
     display: flex;
     flex-direction: row;
     padding-bottom: 1rem;
@@ -19,6 +19,6 @@ label {
     font-weight: bold;
 }
 
-.appendix-item {
+.image-item {
     text-align: center;
 }

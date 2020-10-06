@@ -1,16 +1,16 @@
-import { Appendices } from "./Appendices";
+import { DicomScans } from "./DicomScans";
 
-export interface User {
+export interface DigitalTwin {
     uuid: string;
     age: number;
     sex: string;
     firstname: string;
     lastname: string;
     conditions: string[];
-    appendices: Appendices;
+    dicom_scans: DicomScans;
 }
 
-export interface ListUser {
+export interface ListDigitalTwin {
     uuid: string;
     firstname: string;
     lastname: string;

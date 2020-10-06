@@ -1,9 +1,9 @@
 import * as AWS from "aws-sdk";
 
 import { v4 as uuidv4 } from "uuid";
-import { Appendix } from "../types/Appendices";
+import { Image } from "../types/DicomScans";
 
-import { User } from "./../types/User";
+import { DigitalTwin } from "../types/DigitalTwin";
 
 AWS.config.update({
     region: "eu-west-2",
@@ -48,27 +48,29 @@ function spreadAttributes(
     return [attributeDict, attributeString.slice(0, -1)];
 }
 
-async function updateAWSUser(params: Parameters): Promise<User | void> {
+async function updateAWSDigitalTwin(
+    params: Parameters
+): Promise<DigitalTwin | void> {
     return docClient
         .update(params)
         .promise()
         .then((data) => {
-            return data.Attributes as User;
+            return data.Attributes as DigitalTwin;
         })
         .catch((error) => {
             console.error(error);
         });
 }
 
-export async function updateUserAttribute(
+export async function updateDigitalTwinAttribute(
     uuid: string,
     attributes: string[],
     value: string | boolean | number
-): Promise<User | void> {
+): Promise<DigitalTwin | void> {
     const [attributeDict, attributeString] = spreadAttributes(attributes);
 
     let params: Parameters = {
-        TableName: "Users",
+        TableName: "DigitalTwins",
         Key: { uuid: uuid },
         ReturnValues: "ALL_NEW",
         UpdateExpression: `set ${attributeString} = :val`,
@@ -78,15 +80,15 @@ export async function updateUserAttribute(
         },
     };
 
-    return updateAWSUser(params);
+    return updateAWSDigitalTwin(params);
 }
 
-export async function addAWSAppendix(
+export async function addAWSImage(
     uuid: string,
     attribute: string,
-    value: Appendix
-): Promise<User | void> {
-    makeAppendices(uuid);
+    value: Image
+): Promise<DigitalTwin | void> {
+    makeDicomScans(uuid);
     makeAttribute(uuid, attribute);
     return makeUuid(uuid, attribute, value);
 }
@@ -94,15 +96,15 @@ export async function addAWSAppendix(
 export async function makeUuid(
     uuid: string,
     attribute: string,
-    value: Appendix
-): Promise<User | void> {
+    value: Image
+): Promise<DigitalTwin | void> {
     let params: Parameters = {
-        TableName: "Users",
+        TableName: "DigitalTwins",
         Key: { uuid: uuid },
         ReturnValues: "ALL_NEW",
         UpdateExpression: `
-            SET appendices.lastchanged = :date,
-            appendices.appendices.#attribute.#uuid = if_not_exists(appendices.appendices.#attribute.#uuid, :appendix)
+            SET dicom_scans.lastchanged = :date,
+            dicom_scans.dicom_categories.#attribute.#uuid = if_not_exists(dicom_scans.dicom_categories.#attribute.#uuid, :image)
             `,
         ExpressionAttributeNames: {
             "#uuid": uuidv4(),
@@ -110,7 +112,7 @@ export async function makeUuid(
         },
         ExpressionAttributeValues: {
             ":date": Date.now(),
-            ":appendix": {
+            ":image": {
                 created: value.created,
                 lastchanged: value.lastchanged,
                 value: value.value,
@@ -118,17 +120,17 @@ export async function makeUuid(
         },
     };
 
-    return updateAWSUser(params);
+    return updateAWSDigitalTwin(params);
 }
 
 export function makeAttribute(uuid: string, attribute: string): void {
     let params: Parameters = {
-        TableName: "Users",
+        TableName: "DigitalTwins",
         Key: { uuid: uuid },
         ReturnValues: "ALL_NEW",
         UpdateExpression: `
-            SET appendices.lastchanged = :date,
-            appendices.appendices.#attribute = if_not_exists(appendices.appendices.#attribute, :emptymap)
+            SET dicom_scans.lastchanged = :date,
+            dicom_scans.dicom_categories.#attribute = if_not_exists(dicom_scans.dicom_categories.#attribute, :emptymap)
             `,
         ExpressionAttributeNames: {
             "#attribute": attribute,
@@ -139,17 +141,17 @@ export function makeAttribute(uuid: string, attribute: string): void {
         },
     };
 
-    updateAWSUser(params);
+    updateAWSDigitalTwin(params);
 }
 
-export function makeAppendices(uuid: string): void {
+export function makeDicomScans(uuid: string): void {
     let params: Parameters = {
-        TableName: "Users",
+        TableName: "DigitalTwins",
         Key: { uuid: uuid },
         ReturnValues: "ALL_NEW",
         UpdateExpression: `
-            SET appendices.lastchanged = :date,
-            appendices.appendices = if_not_exists(appendices.appendices, :emptymap)
+            SET dicom_scans.lastchanged = :date,
+            dicom_scans.dicom_categories = if_not_exists(dicom_scans.dicom_categories, :emptymap)
             `,
         ExpressionAttributeValues: {
             ":emptymap": {},
@@ -157,5 +159,5 @@ export function makeAppendices(uuid: string): void {
         },
     };
 
-    updateAWSUser(params);
+    updateAWSDigitalTwin(params);
 }

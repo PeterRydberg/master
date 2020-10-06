@@ -7,7 +7,7 @@ import {
     useState,
 } from "react";
 
-import { ListUser, User } from "./types/User";
+import { ListDigitalTwin, DigitalTwin } from "./types/DigitalTwin";
 import { docClient } from "./services/aws";
 
 AWS.config.update({
@@ -16,8 +16,8 @@ AWS.config.update({
     secretAccessKey: process.env.REACT_APP_AWS_SECRET_KEY,
 });
 
-interface UserSetter {
-    setFullUser: (user: User | null) => void;
+interface DigitalTwinSetter {
+    setFullDigitalTwin: (digitalTwin: DigitalTwin | null) => void;
 }
 
 interface Parameters {
@@ -30,43 +30,49 @@ interface Parameters {
     ExclusiveStartKey?: { [key: string]: string };
 }
 
-export function useUsers(
-    maxUsers: number = 10,
+export function useDigitalTwins(
+    maxDigitalTwins: number = 10,
     page: number = 1
-): [ListUser[] | undefined, boolean] {
-    const [users, setUsers] = useState<ListUser[]>([]);
-    const [userPageKeys, setUserPageKeys] = useState<string[]>([]);
-    const [userPageSet, setUserPageSet] = useState<ListUser[]>([]);
+): [ListDigitalTwin[] | undefined, boolean] {
+    const [digitalTwins, setDigitalTwins] = useState<ListDigitalTwin[]>([]);
+    const [digitalTwinPageKeys, setDigitalTwinPageKeys] = useState<string[]>(
+        []
+    );
+    const [digitalTwinPageSet, setDigitalTwinPageSet] = useState<
+        ListDigitalTwin[]
+    >([]);
     const [lastPage, setLastPage] = useState<boolean>(false);
 
     useEffect((): void => {
-        if (page > userPageKeys.length) {
+        if (page > digitalTwinPageKeys.length) {
             let params: Parameters = {
-                TableName: "Users",
+                TableName: "DigitalTwins",
                 ProjectionExpression: "#i, firstname, lastname",
                 ExpressionAttributeNames: { "#i": "uuid" },
-                Limit: maxUsers,
+                Limit: maxDigitalTwins,
             };
 
             if (page > 1)
-                params["ExclusiveStartKey"] = { uuid: userPageKeys[page - 2] };
+                params["ExclusiveStartKey"] = {
+                    uuid: digitalTwinPageKeys[page - 2],
+                };
 
             docClient.scan(params, function (err, data) {
                 if (err) {
                     console.error(err);
                 } else {
                     if (data.Items?.length) {
-                        setUsers((users) => [
-                            ...users,
-                            ...(data.Items as ListUser[]),
+                        setDigitalTwins((digitalTwins) => [
+                            ...digitalTwins,
+                            ...(data.Items as ListDigitalTwin[]),
                         ]);
-                        setUserPageSet(data.Items as ListUser[]);
+                        setDigitalTwinPageSet(data.Items as ListDigitalTwin[]);
                     } else {
                         setLastPage(
-                            userPageKeys[page - 1] === null ||
-                                page > userPageKeys.length
+                            digitalTwinPageKeys[page - 1] === null ||
+                                page > digitalTwinPageKeys.length
                         );
-                        setUserPageSet([]);
+                        setDigitalTwinPageSet([]);
                         return;
                     }
 
@@ -75,33 +81,43 @@ export function useUsers(
                         : null;
 
                     if (
-                        (newKey && !userPageKeys.includes(newKey)) ||
+                        (newKey && !digitalTwinPageKeys.includes(newKey)) ||
                         (newKey === null &&
-                            !userPageKeys[userPageKeys.length - 1] !== null)
+                            !digitalTwinPageKeys[
+                                digitalTwinPageKeys.length - 1
+                            ] !== null)
                     )
-                        setUserPageKeys((userPageKeys) => [
-                            ...userPageKeys,
+                        setDigitalTwinPageKeys((digitalTwinPageKeys) => [
+                            ...digitalTwinPageKeys,
                             newKey,
                         ]);
                 }
             });
         } else {
             setLastPage(
-                userPageKeys[page - 1] === null || page > userPageKeys.length
+                digitalTwinPageKeys[page - 1] === null ||
+                    page > digitalTwinPageKeys.length
             );
-            setUserPageSet(users.slice((page - 1) * maxUsers, page * maxUsers));
+            setDigitalTwinPageSet(
+                digitalTwins.slice(
+                    (page - 1) * maxDigitalTwins,
+                    page * maxDigitalTwins
+                )
+            );
         }
-    }, [maxUsers, page]);
+    }, [maxDigitalTwins, page]);
 
-    return [userPageSet, lastPage];
+    return [digitalTwinPageSet, lastPage];
 }
 
-export function useUser(uuid: string): [User | null | undefined, UserSetter] {
-    const [user, setUser] = useState<User | null>();
+export function useDigitalTwin(
+    uuid: string
+): [DigitalTwin | null | undefined, DigitalTwinSetter] {
+    const [digitalTwin, setDigitalTwin] = useState<DigitalTwin | null>();
 
     useEffect((): void => {
         let params = {
-            TableName: "Users",
+            TableName: "DigitalTwins",
             Key: { uuid: uuid },
         };
 
@@ -109,23 +125,30 @@ export function useUser(uuid: string): [User | null | undefined, UserSetter] {
             if (err) {
                 console.error(err);
             } else {
-                data.Item ? setUser(data.Item as User) : setUser(null);
+                data.Item
+                    ? setDigitalTwin(data.Item as DigitalTwin)
+                    : setDigitalTwin(null);
             }
         });
     }, [uuid]);
 
-    const setFullUser = useCallback((user: User | null): void => {
-        setUser(user);
-    }, []);
+    const setFullDigitalTwin = useCallback(
+        (digitalTwin: DigitalTwin | null): void => {
+            setDigitalTwin(digitalTwin);
+        },
+        []
+    );
 
-    return [user, { setFullUser }];
+    return [digitalTwin, { setFullDigitalTwin }];
 }
 
-export const UserContext = createContext<[User | null, UserSetter]>([
-    null,
-    { setFullUser: (): void => undefined },
-]);
+export const DigitalTwinContext = createContext<
+    [DigitalTwin | null, DigitalTwinSetter]
+>([null, { setFullDigitalTwin: (): void => undefined }]);
 
-export function useUserContext(): [User | null, UserSetter] {
-    return useContext(UserContext);
+export function useDigitalTwinContext(): [
+    DigitalTwin | null,
+    DigitalTwinSetter
+] {
+    return useContext(DigitalTwinContext);
 }

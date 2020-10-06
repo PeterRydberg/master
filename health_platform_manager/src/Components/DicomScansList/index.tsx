@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { useUserContext } from "../../hooks";
+import { useDigitalTwinContext } from "../../hooks";
 
-import { addAWSAppendix } from "../../services/aws";
-import { Appendices } from "../../types/Appendices";
-import AppendicesTypeListElement from "./AppendicesTypeListElement";
+import { addAWSImage } from "../../services/aws";
+import { DicomScans } from "../../types/DicomScans";
+import DicomCategoriesListElement from "./DicomCategoriesListElement";
 
 import "./styles.css";
 
@@ -64,7 +64,7 @@ function createFilePath(
 
 const fileProps: FileProps = {
     type: "file",
-    id: "appendix_paths",
+    id: "image_paths",
     accept: ".nii.gz",
     multiple: false,
 };
@@ -83,54 +83,55 @@ const dropdownOptions: string[] = [
     "prostate",
 ];
 
-function AppendicesList({ uuid, appendices, className }: Props): JSX.Element {
+function DicomScansList({ uuid, dicomScans, className }: Props): JSX.Element {
     const { selectValue, selectElement } = useSelect(
         dropdownProps,
         dropdownOptions
     );
     const { inputValue, inputElement } = useInput(fileProps, selectValue);
-    const [, userSetters] = useUserContext(); // Should use user directly, might fix later
+    const [, digitalTwinSetters] = useDigitalTwinContext(); // Should use digitalTwin directly, might fix later
 
-    const content = !Object.keys(appendices).length ? (
-        <span>No appendices to show.</span>
+    const content = !Object.keys(dicomScans.dicom_categories).length ? (
+        <span>No DICOM scans to show.</span>
     ) : (
-        <div className="appendices-list">
-            {Object.entries(appendices.appendices).map(
-                ([appendixType, appendixList]) => (
-                    <AppendicesTypeListElement
-                        key={appendixType}
-                        appendixType={appendixType}
-                        userUuid={uuid}
-                        appendixList={appendixList}
+        <div className="dicom-categories-list">
+            {Object.entries(dicomScans.dicom_categories).map(
+                ([imageType, imageList]) => (
+                    <DicomCategoriesListElement
+                        key={imageType}
+                        imageType={imageType}
+                        digitalTwinUuid={uuid}
+                        imageList={imageList}
                     />
                 )
             )}
         </div>
     );
 
-    const addAppendix = (): void => {
-        const appendix = {
+    const addImage = (): void => {
+        const image = {
             created: Date.now(),
             lastchanged: Date.now(),
             value: createFilePath(inputValue, selectValue, false),
-            shareConsent: false,
+            share_consent: false,
         };
 
-        addAWSAppendix(uuid, selectValue, appendix).then((updatedUser) => {
-            if (updatedUser) userSetters.setFullUser(updatedUser);
+        addAWSImage(uuid, selectValue, image).then((updatedDigitalTwin) => {
+            if (updatedDigitalTwin)
+                digitalTwinSetters.setFullDigitalTwin(updatedDigitalTwin);
         });
     };
 
     return (
-        <div className={`appendices ${className || ""}`}>
+        <div className={`dicom-scans ${className || ""}`}>
             {content}
-            <div className="appendix-adder">
-                <label>Add appendix: </label>
+            <div className="image-adder">
+                <label>Add image: </label>
                 {selectElement}
                 {inputElement}
                 <button
                     disabled={!inputValue || !selectValue}
-                    onClick={addAppendix}
+                    onClick={addImage}
                 >
                     Submit
                 </button>
@@ -141,7 +142,7 @@ function AppendicesList({ uuid, appendices, className }: Props): JSX.Element {
 
 interface Props {
     uuid: string;
-    appendices: Appendices;
+    dicomScans: DicomScans;
     className?: string;
 }
 
@@ -159,4 +160,4 @@ interface DropdownProps {
     required: boolean;
 }
 
-export default AppendicesList;
+export default DicomScansList;
