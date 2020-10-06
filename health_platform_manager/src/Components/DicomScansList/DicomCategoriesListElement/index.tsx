@@ -31,7 +31,7 @@ function DicomCategoriesListElement({
     return (
         <div
             key={imageType}
-            className={`dicom-scans-type-list-element ${className || ""}`}
+            className={`dicom-categories-list-element ${className || ""}`}
         >
             <div onClick={() => setOpenList(!openList)} className="togglable">
                 <h3>Type {imageType} ⬇</h3>
