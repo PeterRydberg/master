@@ -16,28 +16,28 @@ class Image(dict):
         self.lastchanged = datetime.now()
 
 
-class Appendices(dict):
+class DicomScans(dict):
     def __init__(self) -> None:
-        self.appendices: Dict[str, Dict[str, Image]] = {}
+        self.dicom_scans: Dict[str, Dict[str, Image]] = {}
         self.lastchanged: datetime = datetime.now()
 
-    def add(self, appendix_type: str, value: T):
-        self.appendices[appendix_type] = Image(value)
+    def add(self, scan_type: str, value: T):
+        self.dicom_scans[scan_type] = Image(value)
         self.lastchanged = datetime.now()
 
-    def update(self, appendix_type: str, value: T):
-        self.appendices[appendix_type].update(value)
+    def update(self, scan_type: str, value: T):
+        self.dicom_scans[scan_type].update(value)
         self.lastchanged = datetime.now()
 
-    def delete(self, appendix_type: str):
-        del self.appendices[appendix_type]
+    def delete(self, scan_type: str):
+        del self.dicom_scans[scan_type]
         self.lastchanged = datetime.now()
 
 
-# Example: appendices =
+# Example: dicom_scans =
 # {
 #     "lastchanged": 1601658908526,
-#     "appendices": {
+#     "dicom_scans": {
 #         "lungscans": {
 #             "[uuid]"{
 #                 "created": 1601658908526,

@@ -1,5 +1,5 @@
 from typing import List
-from Appendices import Appendices
+from DicomScans import DicomScans
 
 import uuid
 
@@ -11,7 +11,7 @@ class DigitalTwin:
                  firstname: str,
                  lastname: str,
                  conditions: List[str] = [],
-                 appendices: Appendices = Appendices()
+                 dicom_scans: DicomScans = DicomScans()
                  ) -> None:
         self.uuid: str = str(uuid.uuid4())
         self.age: int = age
@@ -19,5 +19,5 @@ class DigitalTwin:
         self.firstname: str = firstname
         self.lastname: str = lastname
         self.conditions: List[str] = conditions
-        self.appendices: Appendices = appendices
+        self.dicom_scans: DicomScans = dicom_scans
         self.models = []
