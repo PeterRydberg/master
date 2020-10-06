@@ -87,5 +87,5 @@ def create_digital_twins_table(table_name: str, dynamodb=None):
 
 
 if __name__ == "__main__":
-    digital_twins = generate_digital_twins(amount=99)
+    digital_twins = generate_digital_twins(amount=100)
     update_dynamodb(digital_twins)
