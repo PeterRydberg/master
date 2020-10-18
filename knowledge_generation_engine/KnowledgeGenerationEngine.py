@@ -30,45 +30,65 @@ class KnowledgeGenerationEngine:
         if(not os.path.isfile(self.virtual_register_path)):
             self.init_register()
 
-        with open(self.virtual_register_path, 'r+') as file:
+        with open(self.virtual_register_path, 'r') as file:
             register = json.load(file)
-            next_batch = register['nextBatch']
-            last_scan_timestamp = register['lastScanTimestamp']
 
-            new_scans = self.get_new_dicom_scans(last_scan_timestamp)
+        next_batch = register['nextBatch']
+        last_scan_timestamp = register['lastScanTimestamp']
 
-            register[f'{next_batch}']['dicom_scans'].extend(new_scans)
-            register['lastScanTimestamp'] = int(datetime.utcnow().timestamp())
+        new_scans = self.get_new_dicom_scans(last_scan_timestamp)
+        register[f'{next_batch}']['dicom_scans'].extend(new_scans)
+        register['lastScanTimestamp'] = int(datetime.utcnow().timestamp())
+        with open(self.virtual_register_path, 'w') as file:
             json.dump(register, file)
 
     def get_new_dicom_scans(self, last_scan_timestamp):
         dynamodb = boto3.resource(service_name='dynamodb')
         digital_twin_table: Table = dynamodb.Table('DigitalTwins')
+        scan_kwargs = {
+            'FilterExpression': 'dicom_scans.lastchanged > :last_scan_timestamp',
+            'ExpressionAttributeValues': {
+                ':last_scan_timestamp': last_scan_timestamp
+            }
+        }
 
+        updated_digital_twins = digital_twin_table.scan(**scan_kwargs)
         new_scans: List[Image] = []
 
-        for digital_twin in tqdm(digital_twin_table):
+        for digital_twin in tqdm(updated_digital_twins['Items']):
             dicom_scans = digital_twin['dicom_scans']
-            if(dicom_scans["lastchanged"] > last_scan_timestamp):
-                for scan in dicom_scans[f'{self.dicom_type}']:
-                    if(scan['lastchanged'] > last_scan_timestamp and scan['share_consent']):
-                        new_scans.append(scan)
+            if(self.dicom_type not in dicom_scans['dicom_categories']):
+                continue
+            for scan in dicom_scans['dicom_categories'][self.dicom_type]:
+                scan_obj = dicom_scans['dicom_categories'][self.dicom_type][scan]
+                if(int(scan_obj['lastchanged']) > last_scan_timestamp and bool(scan_obj['share_consent'])):
+                    new_scans.append(scan_obj['value'])
 
         return new_scans
 
     def init_register(self):
-        init_file = {'nextBatch': str(uuid.uuid4()), 'lastScanTimestamp': 0}
+        init_batch = str(uuid.uuid4())
+        init_file = {
+            'nextBatch': init_batch,
+            'lastScanTimestamp': 0,
+            f'{init_batch}': {
+                'trained': False,
+                'dicom_scans': []
+            }
+        }
 
-        with open(self.virtual_register_path, 'w') as file:
+        with open(self.virtual_register_path, 'x') as file:
             json.dump(init_file, file)
 
     def set_new_register_batch(self):
-        with open(self.virtual_register_path, 'r+') as file:
+        with open(self.virtual_register_path, 'r') as file:
             register = json.load(file)
-            next_batch = register['nextBatch']
-            register[f'{next_batch}']['trained'] = True
 
-            updated_register = self.create_new_batch(register)
+        next_batch = register['nextBatch']
+        register[f'{next_batch}']['trained'] = True
+
+        updated_register = self.create_new_batch(register)
+        with open(self.virtual_register_path, 'w') as file:
             json.dump(updated_register, file)
 
     def create_new_batch(self, register):

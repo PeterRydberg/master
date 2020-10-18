@@ -1,1 +1,1 @@
-{"nextBatch": "a2d96256-c5b0-40df-887d-407ea5e74576", "lastScanTimestamp": 0}
+{"nextBatch": "62ef4730-e47d-4126-a10a-38d48d9154fa", "lastScanTimestamp": 1603051287, "62ef4730-e47d-4126-a10a-38d48d9154fa": {"trained": false, "dicom_scans": ["data_sources\\heart\\la_028.nii.gz"]}}
