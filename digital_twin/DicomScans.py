@@ -10,6 +10,7 @@ class Image(dict):
         self.created: int = int(datetime.utcnow().timestamp())
         self.lastchanged: int = int(datetime.utcnow().timestamp())
         self.value: T = value
+        self.share_consent: bool = False
 
     def update(self, value: T):
         self.lastchanged = int(datetime.utcnow().timestamp())
