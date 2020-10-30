@@ -3,7 +3,7 @@ from knowledge_generation_engine.KnowledgeGenerationEngine import KnowledgeGener
 
 if __name__ == "__main__":
     kge = KnowledgeGenerationEngine(
-        dicom_type="heart",
-        virtual_register="register_heart",
+        dicom_type="braintumour",
+        virtual_register="register_braintumour",
         knowledge_bank=KnowledgeBank())
     kge.update_virtual_registry()

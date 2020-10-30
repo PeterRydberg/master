@@ -10,7 +10,6 @@ import os
 import boto3
 import json
 import uuid
-import time
 
 
 CONTANING_MODULE = 'knowledge_generation_engine/'
@@ -60,9 +59,9 @@ class KnowledgeGenerationEngine:
             if(self.dicom_type not in dicom_scans['dicom_categories']):
                 continue
             for scan in dicom_scans['dicom_categories'][self.dicom_type]:
-                scan_obj = dicom_scans['dicom_categories'][self.dicom_type][scan]
-                if(int(scan_obj['lastchanged']) > last_scan_timestamp and bool(scan_obj['share_consent'])):
-                    new_scans.append(scan_obj['value'])
+                image = dicom_scans['dicom_categories'][self.dicom_type][scan]
+                if(int(image['lastchanged']) > last_scan_timestamp and bool(image['share_consent'])):
+                    new_scans.append(image['value'])
 
         return new_scans
 
@@ -109,7 +108,7 @@ class KnowledgeGenerationEngine:
         self.set_new_register_batch()
 
     def export_to_knowledge_base(self, model):
-        self.knowledge_bank.update_model(model)
+        self.knowledge_bank.update_model(self.dicom_type, model)
 
 
 # Example: registry.json

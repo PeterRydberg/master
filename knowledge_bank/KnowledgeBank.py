@@ -5,5 +5,5 @@ class KnowledgeBank:
     def infer(self, model, data):
         pass
 
-    def update_model(self, model):
-        pass
+    def update_model(self, dicom_type, model):
+        self.models[dicom_type] = model
