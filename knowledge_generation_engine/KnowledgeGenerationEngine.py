@@ -7,29 +7,29 @@ from knowledge_bank.KnowledgeBank import KnowledgeBank
 from digital_twin.DicomScans import Image
 
 import os
+import shutil
 import boto3
 import json
 import uuid
 
 
-CONTANING_MODULE = 'knowledge_generation_engine/'
+VIRTUAL_REGISTRIES = 'knowledge_generation_engine\\virtual_registries'
 
 
 class KnowledgeGenerationEngine:
     def __init__(self,
                  dicom_type,
-                 virtual_register="register",
                  knowledge_bank=KnowledgeBank()) -> None:
         self.dicom_type: str = dicom_type
-        self.virtual_register: str = virtual_register
-        self.virtual_register_path: str = f'{CONTANING_MODULE}{self.virtual_register}.json'
+        self.virtual_register_path: str = f'{VIRTUAL_REGISTRIES}\\{self.dicom_type}'
+        self.virtual_register: str = f'{self.virtual_register_path}\\registry.json'
         self.knowledge_bank: KnowledgeBank = knowledge_bank
 
     def update_virtual_registry(self):
-        if(not os.path.isfile(self.virtual_register_path)):
+        if(not os.path.isfile(self.virtual_register)):
             self.init_register()
 
-        with open(self.virtual_register_path, 'r') as file:
+        with open(self.virtual_register, 'r') as file:
             register = json.load(file)
 
         next_batch = register['nextBatch']
@@ -37,9 +37,9 @@ class KnowledgeGenerationEngine:
 
         new_scans = self.get_new_dicom_scans(last_scan_timestamp)
         register[f'{next_batch}']['dicom_scans'].extend(new_scans)
-        register['lastScanTimestamp'] = int(datetime.utcnow().timestamp())
-        with open(self.virtual_register_path, 'w') as file:
-            json.dump(register, file)
+        register['lastScanTimestamp'] = int(datetime.utcnow().timestamp()*1000)
+        with open(self.virtual_register, 'w') as file:
+            json.dump(register, file, indent=4)
 
     def get_new_dicom_scans(self, last_scan_timestamp):
         dynamodb = boto3.resource(service_name='dynamodb')
@@ -52,7 +52,7 @@ class KnowledgeGenerationEngine:
         }
 
         updated_digital_twins = digital_twin_table.scan(**scan_kwargs)
-        new_scans: List[Image] = []
+        new_images: List[Image] = []
 
         for digital_twin in tqdm(updated_digital_twins['Items']):
             dicom_scans = digital_twin['dicom_scans']
@@ -60,10 +60,19 @@ class KnowledgeGenerationEngine:
                 continue
             for scan in dicom_scans['dicom_categories'][self.dicom_type]:
                 image = dicom_scans['dicom_categories'][self.dicom_type][scan]
-                if(int(image['lastchanged']) > last_scan_timestamp and bool(image['share_consent'])):
-                    new_scans.append(image['value'])
+                if(
+                    int(image['lastchanged']) > last_scan_timestamp
+                    and "share_consent" in image.keys()
+                    and bool(image['share_consent'])
+                ):
+                    # Copies image directly from Data Sources into the Virtual Registry
+                    image_path = shutil.copy(
+                        image['value'],
+                        f'{VIRTUAL_REGISTRIES}\\{self.dicom_type}\\data\\'
+                    )
+                    new_images.append(image_path)
 
-        return new_scans
+        return new_images
 
     def init_register(self):
         init_batch = str(uuid.uuid4())
@@ -76,19 +85,20 @@ class KnowledgeGenerationEngine:
             }
         }
 
-        with open(self.virtual_register_path, 'x') as file:
-            json.dump(init_file, file)
+        os.makedirs(os.path.dirname(f'{self.virtual_register_path}\\data\\'), exist_ok=True)
+        with open(self.virtual_register, 'x') as file:
+            json.dump(init_file, file, indent=4)
 
     def set_new_register_batch(self):
-        with open(self.virtual_register_path, 'r') as file:
+        with open(self.virtual_register, 'r') as file:
             register = json.load(file)
 
         next_batch = register['nextBatch']
         register[f'{next_batch}']['trained'] = True
 
         updated_register = self.create_new_batch(register)
-        with open(self.virtual_register_path, 'w') as file:
-            json.dump(updated_register, file)
+        with open(self.virtual_register, 'w') as file:
+            json.dump(updated_register, file, indent=4)
 
     def create_new_batch(self, register):
         batch_uuid = str(uuid.uuid4())
@@ -98,6 +108,8 @@ class KnowledgeGenerationEngine:
         return register
 
     def train_virtual_registry_batch(self, batch):
+        # TODO: Make this work by running a batch script instead
+        # (train.sh and train_finetune.sh)
         model = None  # Get latest trained model
 
         for image in batch:
@@ -108,6 +120,8 @@ class KnowledgeGenerationEngine:
         self.set_new_register_batch()
 
     def export_to_knowledge_base(self, model):
+        # TODO: Make this work by running a batch script instead
+        # (export.sh)
         self.knowledge_bank.update_model(self.dicom_type, model)
 
 

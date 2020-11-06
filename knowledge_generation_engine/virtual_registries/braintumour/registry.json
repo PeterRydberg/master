@@ -1,0 +1,10 @@
+{
+    "nextBatch": "338732f9-1b85-4581-865f-09067847a5e2",
+    "lastScanTimestamp": 1604671330625,
+    "338732f9-1b85-4581-865f-09067847a5e2": {
+        "trained": false,
+        "dicom_scans": [
+            "knowledge_generation_engine\\virtual_registries\\braintumour\\data\\BRATS_485.nii.gz"
+        ]
+    }
+}

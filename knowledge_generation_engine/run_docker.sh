@@ -1,6 +1,4 @@
 #!/bin/bash
-#export dockerImage=nvcr.io/nvidia/clara-train-sdk:v3.0
-#docker run -it --rm --gpus all --shm-size=1G --ulimit memlock=-1 --ulimit stack=67108864 -v /home/hmrydber/Prosjekter/master:/workspace/master $dockerImage /bin/bash
 
 export NVIDIA_RUNTIME="--runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=0"
 export OPTIONS="--shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864"
@@ -15,3 +13,5 @@ docker run $NVIDIA_RUNTIME $OPTIONS -it --rm \
 -v $SOURCE_DIR:$MOUNT_DIR \
 $DOCKER_IMAGE \
 /bin/bash
+
+start_aas.sh --workspace /knowledge_bank/models/prostate

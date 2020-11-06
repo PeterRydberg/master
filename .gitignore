@@ -422,7 +422,7 @@ sketch
 
 # End of https://www.toptal.com/developers/gitignore/api/react,node
 
-external_registries
-virtual_registries
-models
+knowledge_generation_engine/external_registries
+knowledge_generation_engine/virtual_registries/**/data
 data_sources
+ip.txt

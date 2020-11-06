@@ -1,0 +1,10 @@
+{
+    "nextBatch": "094cae6e-ecaf-4467-a4e9-bcee79a68c51",
+    "lastScanTimestamp": 1604672440256,
+    "094cae6e-ecaf-4467-a4e9-bcee79a68c51": {
+        "trained": false,
+        "dicom_scans": [
+            "knowledge_generation_engine\\virtual_registries\\prostate\\data\\prostate_45.nii.gz"
+        ]
+    }
+}
