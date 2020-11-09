@@ -1,3 +1,3 @@
 #!/bin/bash
 
-start_aas.sh --workspace /knowledge_bank/models/prostate
+start_aas.sh --workspace /knowledge_bank/exported_models/prostate
