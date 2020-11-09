@@ -2,7 +2,7 @@
 
 export NVIDIA_RUNTIME="--runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=0"
 export OPTIONS="--shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864"
-export SOURCE_DIR=/home/hmrydber/Prosjekter/master/knowledge_bank/models/prostate
+export SOURCE_DIR=/home/hmrydber/Prosjekter/master/knowledge_bank/exported_models/prostate
 export MOUNT_DIR=/knowledge_bank/exported_models/prostate
 export LOCAL_PORT=9000
 export REMOTE_PORT=80
