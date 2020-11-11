@@ -35,7 +35,13 @@ def generate_random_digital_twin() -> DigitalTwin:
     lastname: str = names.get_last_name()
     conditions: List[str] = sample(chronic_diseases, 1 if random() > 0.97 else 0)
 
-    return DigitalTwin(age, sex, firstname, lastname, conditions)
+    return DigitalTwin(
+        age=age,
+        sex=sex,
+        firstname=firstname,
+        lastname=lastname,
+        conditions=conditions
+    )
 
 
 def update_dynamodb(dynamodb, digital_twins: List[DigitalTwin]) -> None:
