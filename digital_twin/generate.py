@@ -1,13 +1,13 @@
 from random import choice, randint, random, sample
+import boto3
 from tqdm import tqdm
 
 from typing import List
 from mypy_boto3_dynamodb.service_resource import Table
 from botocore.exceptions import ClientError
-import boto3
 import names
 
-from DigitalTwin import DigitalTwin
+from .DigitalTwin import DigitalTwin
 
 # From https://www.medicalschemes.com/medical_schemes_pmb/chronic_disease_list.htm
 chronic_diseases: List[str] = [
@@ -38,8 +38,7 @@ def generate_random_digital_twin() -> DigitalTwin:
     return DigitalTwin(age, sex, firstname, lastname, conditions)
 
 
-def update_dynamodb(digital_twins: List[DigitalTwin]) -> None:
-    dynamodb = boto3.resource(service_name='dynamodb')
+def update_dynamodb(dynamodb, digital_twins: List[DigitalTwin]) -> None:
     digital_twin_table: Table = dynamodb.Table('DigitalTwins')
 
     try:
@@ -48,7 +47,7 @@ def update_dynamodb(digital_twins: List[DigitalTwin]) -> None:
         error_code = e.response['Error']['Code']
         if error_code == "ResourceNotFoundException":
             print("Creating new table...")
-            digital_twin_table = create_digital_twins_table(table_name="DigitalTwins")
+            digital_twin_table = create_digital_twins_table(dynamodb, table_name="DigitalTwins")
             print("Table created!")
         else:
             print(e)
@@ -60,10 +59,7 @@ def update_dynamodb(digital_twins: List[DigitalTwin]) -> None:
     print(f"\n{len(digital_twins)} digital twins added to DynamoDB.")
 
 
-def create_digital_twins_table(table_name: str, dynamodb=None):
-    if not dynamodb:
-        dynamodb = boto3.resource('dynamodb')
-
+def create_digital_twins_table(dynamodb, table_name: str):
     table = dynamodb.create_table(
         TableName=table_name,
         KeySchema=[
@@ -86,6 +82,15 @@ def create_digital_twins_table(table_name: str, dynamodb=None):
     return table
 
 
+def create_and_set_digital_twins(dynamodb, size: int = 100):
+    try:
+        digital_twins = generate_digital_twins(amount=size)
+        update_dynamodb(dynamodb, digital_twins)
+        return digital_twins
+    except Exception as e:
+        print("Error creating new digital twin population:", e)
+
+
 if __name__ == "__main__":
-    digital_twins = generate_digital_twins(amount=100)
-    update_dynamodb(digital_twins)
+    dynamodb = boto3.resource(service_name='dynamodb')
+    create_and_set_digital_twins(dynamodb)

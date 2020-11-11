@@ -122,7 +122,8 @@ class KnowledgeGenerationEngine:
     def export_to_knowledge_base(self, model):
         # TODO: Make this work by running a batch script instead
         # (export.sh)
-        self.knowledge_bank.update_model(self.dicom_type, model)
+        # self.knowledge_bank.update_model(self.dicom_type, model)
+        pass
 
 
 # Example: registry.json

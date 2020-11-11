@@ -17,7 +17,7 @@ class Image(dict):
         self.value = value
 
 
-class DicomScans(dict):
+class DicomScans():
     def __init__(self) -> None:
         self.dicom_categories: Dict[str, Dict[str, Image]] = {}
         self.lastchanged: int = int(datetime.utcnow().timestamp()*1000)
@@ -39,7 +39,7 @@ class DicomScans(dict):
 # {
 #     "lastchanged": 1601658908526,
 #     "dicom_categories": {
-#         "lungscans": {
+#         "heart": {
 #             "[uuid]"{
 #                 "created": 1601658908526,
 #                 "lastchanged": 1601658908526,

@@ -8,10 +8,12 @@ jmespath==0.10.0
 mccabe==0.6.1
 mypy-boto3-dynamodb==1.15.2.0
 names==0.3.0
+numpy==1.19.4
 pycodestyle==2.6.0
 pyflakes==2.2.0
 python-dateutil==2.8.1
 s3transfer==0.3.3
+SimpleITK==2.0.1
 six==1.15.0
 toml==0.10.1
 tqdm==4.49.0

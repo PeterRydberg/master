@@ -1,6 +1,6 @@
 {
     "nextBatch": "094cae6e-ecaf-4467-a4e9-bcee79a68c51",
-    "lastScanTimestamp": 1604672440256,
+    "lastScanTimestamp": 1605109724842,
     "094cae6e-ecaf-4467-a4e9-bcee79a68c51": {
         "trained": false,
         "dicom_scans": [
