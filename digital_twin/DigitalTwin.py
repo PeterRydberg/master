@@ -1,5 +1,5 @@
-from typing import Dict, List, Union
-from DicomScans import DicomScans
+from typing import List
+from .DicomScans import DicomScans
 
 import uuid
 
@@ -10,14 +10,19 @@ class DigitalTwin:
                  sex: str,
                  firstname: str,
                  lastname: str,
+                 uuid: str = str(uuid.uuid4()),
                  conditions: List[str] = [],
-                 dicom_scans: Dict[str, Union[int, Dict]] = vars(DicomScans())
+                 dicom_scans: DicomScans = DicomScans(),
+                 models: List = []
                  ) -> None:
-        self.uuid: str = str(uuid.uuid4())
+        self.uuid: str = uuid
         self.age: int = age
         self.sex: str = sex
         self.firstname: str = firstname
         self.lastname: str = lastname
         self.conditions: List[str] = conditions
-        self.dicom_scans: Dict[str, Union[int, Dict]] = dicom_scans
-        self.models = []
+        self.dicom_scans: DicomScans = dicom_scans
+        self.models = models
+
+    def update_twin_info(self):
+        pass
