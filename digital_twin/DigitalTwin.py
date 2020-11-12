@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 from .DicomScans import DicomScans
 
 import uuid
@@ -10,12 +10,12 @@ class DigitalTwin:
                  sex: str,
                  firstname: str,
                  lastname: str,
-                 uuid: str = str(uuid.uuid4()),
+                 user_uuid: Union[str, None] = None,
                  conditions: List[str] = [],
                  dicom_scans: DicomScans = DicomScans(),
                  models: List = []
                  ) -> None:
-        self.uuid: str = uuid
+        self.uuid: str = user_uuid if user_uuid is not None else str(uuid.uuid4())
         self.age: int = age
         self.sex: str = sex
         self.firstname: str = firstname

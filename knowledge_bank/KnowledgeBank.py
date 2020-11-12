@@ -45,7 +45,7 @@ class KnowledgeBank:
         self.client.segmentation(
             model=model_to_use,
             image_in=image_path,
-            image_out=f'{DATA_SOURCES}\\{organ}\\segmentation\\{image_name}_seg.nii.gz'
+            image_out=f'{DATA_SOURCES}\\{organ}\\segmentations\\{image_name}_seg.nii.gz'
         )
         return
 
@@ -54,4 +54,4 @@ class KnowledgeBank:
 
     def get_image(self, user: DigitalTwin, organ: str, image_uuid: str):
         image: Image = user.dicom_scans.dicom_categories[f'{organ}'][f'{image_uuid}']
-        return image.value, image.value.split('nii.gz')[0]
+        return image.image_path, image.image_path.split('nii.gz')[0]

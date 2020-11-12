@@ -10,6 +10,8 @@ export interface DicomScans {
 export interface Image {
     created: number;
     lastchanged: number;
-    value: any;
+    image_path: string;
+    segmentation_path: string;
+    inference_path: string;
     share_consent: boolean;
 }

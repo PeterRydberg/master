@@ -1,4 +1,6 @@
+import json
 from random import choice, randint, random, sample
+from types import SimpleNamespace
 import boto3
 from tqdm import tqdm
 
@@ -59,7 +61,7 @@ def update_dynamodb(dynamodb, digital_twins: List[DigitalTwin]) -> None:
             print(e)
 
     for digital_twin in tqdm(digital_twins):
-        dict_digital_twin = vars(digital_twin)
+        dict_digital_twin = obj_to_json(digital_twin)
         digital_twin_table.put_item(Item=dict_digital_twin)
 
     print(f"\n{len(digital_twins)} digital twins added to DynamoDB.")
@@ -86,6 +88,12 @@ def create_digital_twins_table(dynamodb, table_name: str):
         }
     )
     return table
+
+
+def obj_to_json(obj):
+    return json.loads(
+        json.dumps(obj, default=lambda o: getattr(o, '__dict__', str(o)))
+    )
 
 
 def create_and_set_digital_twins(dynamodb, size: int = 100):

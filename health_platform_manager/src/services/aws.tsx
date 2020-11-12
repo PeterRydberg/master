@@ -86,17 +86,17 @@ export async function updateDigitalTwinAttribute(
 export async function addAWSImage(
     uuid: string,
     attribute: string,
-    value: Image
+    image: Image
 ): Promise<DigitalTwin | void> {
     makeDicomScans(uuid);
     makeAttribute(uuid, attribute);
-    return makeUuid(uuid, attribute, value);
+    return makeUuid(uuid, attribute, image);
 }
 
 export async function makeUuid(
     uuid: string,
     attribute: string,
-    value: Image
+    image: Image
 ): Promise<DigitalTwin | void> {
     let params: Parameters = {
         TableName: "DigitalTwins",
@@ -113,9 +113,9 @@ export async function makeUuid(
         ExpressionAttributeValues: {
             ":date": Date.now(),
             ":image": {
-                created: value.created,
-                lastchanged: value.lastchanged,
-                value: value.value,
+                created: image.created,
+                lastchanged: image.lastchanged,
+                image_path: image.image_path,
             },
         },
     };

@@ -42,15 +42,15 @@ function DicomScansListElement({
             </div>
 
             <div className="image-item">
-                <label>Content path: </label>"{image.value}"
+                <label>Content path: </label>"{image.image_path}"
             </div>
 
             <div className="image-item">
-                <label>Automatic model evaluation: </label>[NONE]
+                <label>AIAA segmentation result: </label>{image.segmentation_path || "Unprocessed"}
             </div>
 
             <div className="image-item">
-                <label>Doctor evaluation: </label>[NONE]
+                <label>AIAA inference result: </label>{image.inference_path || "Unprocessed"}
             </div>
 
             <div className="image-item">

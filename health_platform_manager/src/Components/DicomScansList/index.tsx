@@ -112,7 +112,9 @@ function DicomScansList({ uuid, dicomScans, className }: Props): JSX.Element {
         const image = {
             created: Date.now(),
             lastchanged: Date.now(),
-            value: createFilePath(inputValue, selectValue, false),
+            image_path: createFilePath(inputValue, selectValue, false),
+            segmentation_path: "",
+            inference_path: "",
             share_consent: false,
         };
 

@@ -67,7 +67,7 @@ class KnowledgeGenerationEngine:
                 ):
                     # Copies image directly from Data Sources into the Virtual Registry
                     image_path = shutil.copy(
-                        image['value'],
+                        image['image_path'],
                         f'{VIRTUAL_REGISTRIES}\\{self.dicom_type}\\data\\'
                     )
                     new_images.append(image_path)
