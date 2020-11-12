@@ -1,15 +1,14 @@
 import json
-from random import choice, randint, random, sample
-from types import SimpleNamespace
 import boto3
+import names
+from random import choice, randint, random, sample
 from tqdm import tqdm
-
 from typing import List
 from mypy_boto3_dynamodb.service_resource import Table
 from botocore.exceptions import ClientError
-import names
 
 from .DigitalTwin import DigitalTwin
+
 
 # From https://www.medicalschemes.com/medical_schemes_pmb/chronic_disease_list.htm
 chronic_diseases: List[str] = [
