@@ -29,3 +29,7 @@ label {
 .image-item {
     text-align: left;
 }
+
+#consent-checkbox {
+    margin-top: 4px;
+}
