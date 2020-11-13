@@ -1,8 +1,7 @@
 import boto3
-from collections import namedtuple
 from botocore.exceptions import ClientError
 from mypy_boto3_dynamodb.service_resource import Table
-from typing import Dict, List, Union
+from typing import List, Union
 
 from .DigitalTwin import DigitalTwin
 from .generate import create_and_set_digital_twins
@@ -36,6 +35,3 @@ class DigitalTwinPopulation:
             digital_twin: DigitalTwin = DigitalTwin(**response["Item"])
             self.digital_twins_cache.append(digital_twin)
             return digital_twin
-
-    def customDigitalTwinDecoder(self, digital_twin_dict: Dict):
-        return namedtuple('X', digital_twin_dict.keys())(*digital_twin_dict.values())

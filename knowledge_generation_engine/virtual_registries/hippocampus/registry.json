@@ -1,8 +1,0 @@
-{
-    "nextBatch": "fddb8f9e-4e76-4ed8-a79f-7da9311592ec",
-    "lastScanTimestamp": 1604672421280,
-    "fddb8f9e-4e76-4ed8-a79f-7da9311592ec": {
-        "trained": false,
-        "dicom_scans": []
-    }
-}
