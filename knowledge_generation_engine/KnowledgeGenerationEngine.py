@@ -1,6 +1,5 @@
 from collections import defaultdict
 from datetime import datetime
-from typing import Dict
 from mypy_boto3_dynamodb.service_resource import Table
 from tqdm.std import tqdm
 
@@ -33,16 +32,15 @@ class KnowledgeGenerationEngine:
         with open(self.virtual_register, 'r') as file:
             register = json.load(file)
 
-        next_batch = register['nextBatch']
+        next_batch_uuid = register['nextBatch']
         last_scan_timestamp = register['lastScanTimestamp']
+        self.get_new_dicom_scans(register[f'{next_batch_uuid}']['dicom_scans'], last_scan_timestamp)
 
-        new_scans = self.get_new_dicom_scans(last_scan_timestamp)
-        register[f'{next_batch}']['dicom_scans'].update(new_scans)
         register['lastScanTimestamp'] = int(datetime.utcnow().timestamp()*1000)
         with open(self.virtual_register, 'w') as file:
             json.dump(register, file, indent=4)
 
-    def get_new_dicom_scans(self, last_scan_timestamp):
+    def get_new_dicom_scans(self, batch, last_scan_timestamp):
         dynamodb = boto3.resource(service_name='dynamodb')
         digital_twin_table: Table = dynamodb.Table('DigitalTwins')
         scan_kwargs = {
@@ -53,7 +51,6 @@ class KnowledgeGenerationEngine:
         }
 
         updated_digital_twins = digital_twin_table.scan(**scan_kwargs)
-        new_images: Dict[str, Dict[str, str]] = {}
 
         for digital_twin in tqdm(updated_digital_twins['Items']):
             dicom_scans = digital_twin['dicom_scans']
@@ -61,58 +58,73 @@ class KnowledgeGenerationEngine:
                 continue
             for scan in dicom_scans['dicom_categories'][self.dicom_type]:
                 image = dicom_scans['dicom_categories'][self.dicom_type][scan]
+                file_name = image["image_path"].split("\\")[-1].split(".nii.gz")[0]
                 if(
                     int(image['lastchanged']) > last_scan_timestamp
                     and bool(image['share_consent'])
                 ):
-                    registry = self.copy_to_registry(image, scan)
-                    new_images.update(registry)
+                    registry = self.update_batch_image(image, scan, file_name)
+                    batch.update(registry)
                 elif(
                     int(image['lastchanged']) > last_scan_timestamp
-                    and bool(image['share_consent'])
+                    and not bool(image['share_consent'])
                 ):
-                    print("Remove all images")
+                    self.delete_file("image", file_name)
+                    self.delete_file("segmentation", file_name)
+                    self.delete_file("inference", file_name)
+                    batch.pop(scan)
 
-        return new_images
+        return batch
 
     # Copies images directly from Data Sources into the Virtual Registry
-    def copy_to_registry(self, image, scan):
+    def update_batch_image(self, image, scan, file_name):
         registry = defaultdict(defaultdict)
 
         if(image['image_path'] != ''):
             image_path = shutil.copy(
                 image['image_path'],
-                f'{VIRTUAL_REGISTRIES}\\{self.dicom_type}\\images\\'
+                self.get_file_path("image", file_name)
             )
             registry[f'{scan}']['image_path'] = image_path
 
         if(image['segmentation_path'] != ''):
             segmentation_path = shutil.copy(
                 image['segmentation_path'],
-                f'{VIRTUAL_REGISTRIES}\\{self.dicom_type}\\segmentations\\'
+                self.get_file_path("segmentation", file_name)
             )
             registry[f'{scan}']['segmentation_path'] = segmentation_path
         else:
-            file_name = image["image_path"].split("\\")[-1].split(".nii.gz")[0]
-            file_name_seg = f'{file_name}_seg.nii.gz'
-            file_path = f'.\\{VIRTUAL_REGISTRIES}\\{self.dicom_type}\\segmentations\\{file_name_seg}'
-            if(os.path.isfile(file_path)):
-                os.remove(file_path)
+            self.delete_file("segmentation", file_name)
 
         if(image['inference_path'] != ''):
             inference_path = shutil.copy(
                 image['inference_path'],
-                f'{VIRTUAL_REGISTRIES}\\{self.dicom_type}\\inferences\\'
+                self.get_file_path("inference", file_name)
             )
             registry[f'{scan}']['inference_path'] = inference_path
         else:
-            file_name = image["image_path"].split("\\")[-1].split(".nii.gz")[0]
-            file_name_inf = f'{file_name}_inf.nii.gz'
-            file_path = f'.\\{VIRTUAL_REGISTRIES}\\{self.dicom_type}\\segmentations\\{file_name_inf}'
-            if(os.path.isfile(file_path)):
-                os.remove(file_path)
+            self.delete_file("inference", file_name)
 
         return registry
+
+    def get_file_path(self, type, file_name):
+        file_path = ""
+        if(type == "image"):
+            file_name = f'{file_name}.nii.gz'
+            file_path = f'.\\{VIRTUAL_REGISTRIES}\\{self.dicom_type}\\images\\{file_name}'
+        elif(type == "segmentation"):
+            file_name_seg = f'{file_name}_seg.nii.gz'
+            file_path = f'.\\{VIRTUAL_REGISTRIES}\\{self.dicom_type}\\segmentations\\{file_name_seg}'
+        elif(type == "inference"):
+            file_name_inf = f'{file_name}_inf.nii.gz'
+            file_path = f'.\\{VIRTUAL_REGISTRIES}\\{self.dicom_type}\\inferences\\{file_name_inf}'
+
+        return file_path
+
+    def delete_file(self, type, file_name):
+        file_path = self.get_file_path(type, file_name)
+        if(os.path.isfile(file_path)):
+            os.remove(file_path)
 
     def init_register(self):
         init_batch = str(uuid.uuid4())
