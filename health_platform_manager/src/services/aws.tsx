@@ -135,6 +135,9 @@ export async function makeUuid(
                 created: image.created,
                 lastchanged: image.lastchanged,
                 image_path: image.image_path,
+                segmentation_path: image.segmentation_path,
+                inference_path: image.inference_path,
+                share_consent: image.share_consent
             },
         },
     };
