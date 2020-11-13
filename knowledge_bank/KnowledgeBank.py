@@ -13,10 +13,10 @@ DATA_SOURCES = os.getenv('DATA_SOURCE_PATH')
 
 
 class DefaultSegmentationModels(Enum):
-    PROSTATE = "clara_train_mri_prostate_cg_and_pz_automl_v1"
     BRAINTUMOUR = ""
-    HIPPOCAMPUS = ""
     HEART = ""
+    HIPPOCAMPUS = ""
+    PROSTATE = "clara_train_mri_prostate_cg_and_pz_automl_v1"
 
 
 class KnowledgeBank:
