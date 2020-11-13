@@ -1,6 +1,7 @@
 import React, { ChangeEvent, useState } from "react";
+import { MdArrowDownward, MdDeleteForever } from "react-icons/md";
 import { useDigitalTwinContext } from "../../../hooks";
-import { updateDigitalTwinAttribute } from "../../../services/aws";
+import { deleteAWSImage, updateDigitalTwinAttribute } from "../../../services/aws";
 import { Image } from "../../../types/DicomScans";
 
 import "./styles.css";
@@ -34,27 +35,47 @@ function DicomScansListElement({
         });
     };
 
+    const deleteImage = (e: React.MouseEvent<SVGElement, MouseEvent>): void => {
+        e.preventDefault();
+        deleteAWSImage(
+            digitalTwinUuid,
+            [
+                "dicom_scans",
+                "dicom_categories",
+                imageType,
+                imageUuid
+            ],
+        ).then((updatedDigitalTwin) => {
+            if (updatedDigitalTwin)
+                digitalTwinSetters.setFullDigitalTwin(updatedDigitalTwin);
+        })
+    };
+
     const imageContent = openImage ? (
         <div className="image-content">
-            <div className="image-item">
-                <label>Last changed: </label>
-                {new Date(image.lastchanged).toLocaleDateString()}
+            <div>
+                <div className="image-item">
+                    <h5 style={{display: "inline", margin: 0}}>Last changed: </h5>
+                    {new Date(image.lastchanged).toLocaleDateString()}
+                </div>
+
+                <div className="image-item">
+                    <h5 style={{display: "inline", margin: 0}}>Image path: </h5>"{image.image_path}"
+                </div>
             </div>
 
-            <div className="image-item">
-                <label>Content path: </label>"{image.image_path}"
+            <div>
+                <div className="image-item">
+                    <h5 style={{display: "inline", margin: 0}}>AIAA segmentation result: </h5>{image.segmentation_path || "Unprocessed"}
+                </div>
+
+                <div className="image-item">
+                    <h5 style={{display: "inline", margin: 0}}>AIAA inference result: </h5>{image.inference_path || "Unprocessed"}
+                </div>
             </div>
 
-            <div className="image-item">
-                <label>AIAA segmentation result: </label>{image.segmentation_path || "Unprocessed"}
-            </div>
-
-            <div className="image-item">
-                <label>AIAA inference result: </label>{image.inference_path || "Unprocessed"}
-            </div>
-
-            <div className="image-item">
-                <label>Patient consent to information share:</label>
+            <div className="image-item title">
+                <h5 style={{display: "inline", margin: 0}}>Patient consent to information share:</h5>
                 <input
                     type="checkbox"
                     name="consent"
@@ -74,11 +95,13 @@ function DicomScansListElement({
             key={imageUuid}
             className={`dicom-scans-list-element ${className || ""}`}
         >
-            <div onClick={() => setOpenImage(!openImage)} className="togglable">
-                <h4>
-                    Image created {new Date(image.created).toLocaleDateString()}{" "}
-                    ⬇
+            <div className="title">
+                <h4>            
+                    <div onClick={() => setOpenImage(!openImage)} className="togglable">
+                        Image created {new Date(image.created).toLocaleDateString()} <MdArrowDownward/>
+                    </div>
                 </h4>
+                <MdDeleteForever className="togglable" color="#FF1111" size="2em" onClick={deleteImage}/>  
             </div>
 
             {imageContent}

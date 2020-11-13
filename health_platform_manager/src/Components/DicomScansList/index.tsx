@@ -57,7 +57,7 @@ function createFilePath(
     const paths = filename.split("\\");
     const file = paths ? paths[paths.length - 1] : "";
 
-    const ending = `${process.env.REACT_APP_DATA_SOURCE_PATH}images\\${filetype}\\${file}`;
+    const ending = `${process.env.REACT_APP_DATA_SOURCE_PATH}${filetype}\\images\\${file}`;
     if (full) return `${process.env.REACT_APP_FULL_DIRECTORY_PATH}${ending}`;
     return `${ending}`;
 }

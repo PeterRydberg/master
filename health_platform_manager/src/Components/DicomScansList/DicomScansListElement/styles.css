@@ -3,6 +3,12 @@
     border-radius: 5px;
     border-style: solid;
     padding: 0 1rem 0 1rem;
+    background-color: #f3f3f3;
+}
+
+.title {
+    display: flex;
+    justify-content: space-between;
 }
 
 .togglable {
@@ -12,6 +18,7 @@
 .image-content {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
     padding-bottom: 1rem;
 }
 
@@ -20,5 +27,5 @@ label {
 }
 
 .image-item {
-    text-align: center;
+    text-align: left;
 }

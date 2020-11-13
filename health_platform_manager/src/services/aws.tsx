@@ -93,6 +93,25 @@ export async function addAWSImage(
     return makeUuid(uuid, attribute, image);
 }
 
+export async function deleteAWSImage(
+    uuid: string,
+    attributes: string[]
+):Promise<DigitalTwin | void> {
+    const [attributeDict, attributeString] = spreadAttributes(attributes);
+
+    let params: Parameters = {
+        TableName: "DigitalTwins",
+        Key: {
+            uuid: uuid            
+        },
+        ReturnValues: "ALL_NEW",
+        UpdateExpression: `REMOVE ${attributeString}`,
+        ExpressionAttributeNames: attributeDict,
+    }
+
+    return updateAWSDigitalTwin(params);
+}
+
 export async function makeUuid(
     uuid: string,
     attribute: string,

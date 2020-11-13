@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+
+import { MdArrowDownward } from "react-icons/md";
+
 import { Image } from "../../../types/DicomScans";
 import DicomScansListElement from "../DicomScansListElement";
 
@@ -34,7 +37,7 @@ function DicomCategoriesListElement({
             className={`dicom-categories-list-element ${className || ""}`}
         >
             <div onClick={() => setOpenList(!openList)} className="togglable">
-                <h3>Type {imageType} ⬇</h3>
+                <h3>Type {imageType} ({Object.keys(imageList).length} images available) <MdArrowDownward/> </h3>
             </div>
             {listContent}
         </div>

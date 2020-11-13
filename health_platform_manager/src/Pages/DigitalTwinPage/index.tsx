@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, useParams } from "react-router-dom";
+import {MdArrowBack} from 'react-icons/md'
 
 import DicomScansList from "../../Components/DicomScansList";
 import { useDigitalTwin, DigitalTwinContext } from "../../hooks";
@@ -22,7 +23,7 @@ function DigitalTwinPage({ className }: Props): JSX.Element {
         <DigitalTwinContext.Provider value={[digitalTwin, digitalTwinSetters]}>
             <div className={`digital-twin-page ${className || ""}`}>
                 <Link to="/" className="home-icon">
-                    ⬅
+                    <MdArrowBack/>
                 </Link>
                 <h1>
                     {digitalTwin.firstname} {digitalTwin.lastname}
