@@ -10,5 +10,11 @@ if __name__ == "__main__":
     )
 
     # dtp.generate_new_population(size=100)
-    # kge.update_virtual_registry()
-    kb.process_new_images()
+    kge.update_virtual_registry()
+    # kb.process_new_images()
+
+    # Refaktorer navn
+    # Fjern self.dicom_type på KGE
+    # Tillat både segmentation og inferens (helst opprette nye modeller automatisk)
+    # Sett opp Ecosystem.py
+    # Tren automatisk

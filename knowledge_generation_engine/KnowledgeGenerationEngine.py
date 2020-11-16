@@ -5,6 +5,7 @@ from tqdm.std import tqdm
 
 from digital_twin.DigitalTwinPopulation import DigitalTwinPopulation
 from digital_twin.DigitalTwin import DigitalTwin
+from digital_twin.DicomScans import Image
 from knowledge_bank.KnowledgeBank import KnowledgeBank
 
 import os
@@ -55,19 +56,19 @@ class KnowledgeGenerationEngine:
                 continue
             for scan in dicom_scans.dicom_categories[self.dicom_type]:
                 image = dicom_scans.dicom_categories[self.dicom_type][scan]
-                file_name = image["image_path"].split("\\")[-1].split(".nii.gz")[0]
+                file_name = image.image_path.split("\\")[-1].split(".nii.gz")[0]
                 if(
-                    int(image['lastchanged']) > last_scan_timestamp
-                    and bool(image['aiaa_consented'])
-                    and bool(image['aiaa_approved'])
+                    int(image.lastchanged) > last_scan_timestamp
+                    and bool(image.aiaa_consented)
+                    and bool(image.aiaa_approved)
 
                 ):
                     registry = self.update_batch_image(image, scan, file_name)
                     batch.update(registry)
                 elif(
-                    int(image['lastchanged']) > last_scan_timestamp
-                    and (not bool(image['aiaa_consented'])
-                         or not bool(image['aiaa_approved']))
+                    int(image.lastchanged) > last_scan_timestamp
+                    and (not bool(image.aiaa_consented)
+                         or not bool(image.aiaa_approved))
                 ):
                     self.delete_file("image", file_name)
                     self.delete_file("segmentation", file_name)
@@ -77,28 +78,28 @@ class KnowledgeGenerationEngine:
         return batch
 
     # Copies images directly from Data Sources into the Virtual Registry
-    def update_batch_image(self, image, scan, file_name):
+    def update_batch_image(self, image: Image, scan: str, file_name: str):
         registry = defaultdict(defaultdict)
 
-        if(image['image_path'] != ''):
+        if(image.image_path != ''):
             image_path = shutil.copy(
-                image['image_path'],
+                image.image_path,
                 self.get_file_path("image", file_name)
             )
             registry[f'{scan}']['image_path'] = image_path
 
-        if(image['segmentation_path'] != ''):
+        if(image.segmentation_path != ''):
             segmentation_path = shutil.copy(
-                image['segmentation_path'],
+                image.segmentation_path,
                 self.get_file_path("segmentation", file_name)
             )
             registry[f'{scan}']['segmentation_path'] = segmentation_path
         else:
             self.delete_file("segmentation", file_name)
 
-        if(image['inference_path'] != ''):
+        if(image.inference_path != ''):
             inference_path = shutil.copy(
-                image['inference_path'],
+                image.inference_path,
                 self.get_file_path("inference", file_name)
             )
             registry[f'{scan}']['inference_path'] = inference_path

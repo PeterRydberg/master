@@ -1,11 +1,8 @@
-from typing import Dict, TypeVar, Union
+from typing import Dict
 from datetime import datetime
 
 
-T = TypeVar('T')
-
-
-class Image(dict):
+class Image():
     def __init__(
         self,
         created: int = int(datetime.utcnow().timestamp()*1000),
@@ -37,19 +34,6 @@ class DicomScans():
     ) -> None:
         self.dicom_categories: Dict[str, Dict[str, Image]] = dicom_categories
         self.lastchanged: int = lastchanged
-
-    def add(self, scan_type: str, image_path: str):
-        self.dicom_categories[scan_type] = Image(image_path)
-        self.lastchanged: int = int(datetime.utcnow().timestamp()*1000)
-
-    def update(self, scan_type: str, image_path: T):
-        self.dicom_categories[scan_type].update(image_path)
-        self.lastchanged: int = int(datetime.utcnow().timestamp()*1000)
-
-    def delete(self, scan_type: str):
-        del self.dicom_categories[scan_type]
-        self.lastchanged: int = int(datetime.utcnow().timestamp()*1000)
-
 
 # Example: dicom_scans =
 # {

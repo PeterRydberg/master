@@ -7,7 +7,7 @@ from py_client import client_api
 from tqdm.std import tqdm
 from dotenv import load_dotenv
 
-from digital_twin.DicomScans import DicomScans, Image
+from digital_twin.DicomScans import Image
 from digital_twin.DigitalTwin import DigitalTwin
 from digital_twin.DigitalTwinPopulation import DigitalTwinPopulation
 
@@ -36,12 +36,8 @@ class KnowledgeBank:
 
         digital_twin: DigitalTwin
         for digital_twin in tqdm(updated_digital_twins):
-            dicom_scans: DicomScans = DicomScans(**digital_twin.dicom_scans)
-            digital_twin.dicom_scans = dicom_scans
-            for dicom_category in dicom_scans.dicom_categories:
-                for scan in dicom_scans.dicom_categories[dicom_category]:
-                    image: Image = Image(**dicom_scans.dicom_categories[dicom_category][scan])
-                    dicom_scans.dicom_categories[dicom_category][scan] = image
+            for dicom_category in digital_twin.dicom_scans.dicom_categories:
+                for scan in digital_twin.dicom_scans.dicom_categories[dicom_category]:
                     self.do_aiaa(
                         user_uuid=digital_twin.uuid,
                         organ=dicom_category,

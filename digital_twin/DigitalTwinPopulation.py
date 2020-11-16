@@ -3,6 +3,7 @@ from botocore.exceptions import ClientError
 from mypy_boto3_dynamodb.service_resource import Table
 from typing import Dict, List, Union
 
+from digital_twin.DicomScans import DicomScans, Image
 from .DigitalTwin import DigitalTwin
 from .generate import create_and_set_digital_twins
 
@@ -27,7 +28,7 @@ class DigitalTwinPopulation:
             print(e.response['Error']['Message'])
             return []
         else:
-            digital_twin: List[DigitalTwin] = [DigitalTwin(**x) for x in response["Items"]]
+            digital_twin: List[DigitalTwin] = [self.pythonize_digital_twin(x) for x in response["Items"]]
             return digital_twin
 
     def generate_new_population(self, size: int) -> None:
@@ -51,9 +52,20 @@ class DigitalTwinPopulation:
             print(e.response['Error']['Message'])
             return None
         else:
-            digital_twin: DigitalTwin = DigitalTwin(**response["Item"])
+            digital_twin: DigitalTwin = self.pythonize_digital_twin(response["Item"])
             self.digital_twins_cache.append(digital_twin)
             return digital_twin
+
+    def pythonize_digital_twin(self, dt_dict) -> DigitalTwin:
+        digital_twin: DigitalTwin = DigitalTwin(**dt_dict)
+        dicom_scans: DicomScans = DicomScans(**digital_twin.dicom_scans)
+        digital_twin.dicom_scans = dicom_scans
+        for dicom_category in dicom_scans.dicom_categories:
+            for scan in dicom_scans.dicom_categories[dicom_category]:
+                image: Image = Image(**dicom_scans.dicom_categories[dicom_category][scan])
+                dicom_scans.dicom_categories[dicom_category][scan] = image
+
+        return digital_twin
 
     def update_digital_twin_attribute(
         self,
