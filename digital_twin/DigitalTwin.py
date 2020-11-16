@@ -1,7 +1,7 @@
 from typing import List, Union
 from .DicomScans import DicomScans
 
-import uuid
+import uuid as uuid_getter
 
 
 class DigitalTwin:
@@ -10,12 +10,12 @@ class DigitalTwin:
                  sex: str,
                  firstname: str,
                  lastname: str,
-                 user_uuid: Union[str, None] = None,
+                 uuid: Union[str, None] = None,
                  conditions: List[str] = [],
                  dicom_scans: DicomScans = DicomScans(),
                  models: List = []
                  ) -> None:
-        self.uuid: str = user_uuid if user_uuid is not None else str(uuid.uuid4())
+        self.uuid: str = uuid if uuid is not None else str(uuid_getter.uuid4())
         self.age: int = age
         self.sex: str = sex
         self.firstname: str = firstname

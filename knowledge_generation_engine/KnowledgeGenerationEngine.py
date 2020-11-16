@@ -1,13 +1,14 @@
 from collections import defaultdict
 from datetime import datetime
-from mypy_boto3_dynamodb.service_resource import Table
+from typing import List
 from tqdm.std import tqdm
 
+from digital_twin.DigitalTwinPopulation import DigitalTwinPopulation
+from digital_twin.DigitalTwin import DigitalTwin
 from knowledge_bank.KnowledgeBank import KnowledgeBank
 
 import os
 import shutil
-import boto3
 import json
 import uuid
 
@@ -19,11 +20,14 @@ DICOM_TYPES = ['braintumour', 'heart', 'hippocampus', 'prostate']
 class KnowledgeGenerationEngine:
     def __init__(self,
                  dicom_type,
-                 knowledge_bank=KnowledgeBank()) -> None:
+                 knowledge_bank=KnowledgeBank(),
+                 digital_twin_population=DigitalTwinPopulation()
+                 ) -> None:
         self.dicom_type: str = dicom_type
         self.virtual_register_path: str = f'{VIRTUAL_REGISTRIES}\\{self.dicom_type}'
         self.virtual_register: str = f'{self.virtual_register_path}\\registry.json'
         self.knowledge_bank: KnowledgeBank = knowledge_bank
+        self.digital_twin_population: DigitalTwinPopulation = digital_twin_population
 
     def update_virtual_registry(self):
         if(not os.path.isfile(self.virtual_register)):
@@ -41,23 +45,16 @@ class KnowledgeGenerationEngine:
             json.dump(register, file, indent=4)
 
     def get_new_dicom_scans(self, batch, last_scan_timestamp):
-        dynamodb = boto3.resource(service_name='dynamodb')
-        digital_twin_table: Table = dynamodb.Table('DigitalTwins')
-        scan_kwargs = {
-            'FilterExpression': 'dicom_scans.lastchanged > :last_scan_timestamp',
-            'ExpressionAttributeValues': {
-                ':last_scan_timestamp': last_scan_timestamp
-            }
-        }
+        updated_digital_twins: List[DigitalTwin] = self.digital_twin_population.get_updated_digital_twins(
+            last_scan_timestamp)
 
-        updated_digital_twins = digital_twin_table.scan(**scan_kwargs)
-
-        for digital_twin in tqdm(updated_digital_twins['Items']):
-            dicom_scans = digital_twin['dicom_scans']
-            if(self.dicom_type not in dicom_scans['dicom_categories']):
+        digital_twin: DigitalTwin
+        for digital_twin in tqdm(updated_digital_twins):
+            dicom_scans = digital_twin.dicom_scans
+            if(self.dicom_type not in dicom_scans.dicom_categories):
                 continue
-            for scan in dicom_scans['dicom_categories'][self.dicom_type]:
-                image = dicom_scans['dicom_categories'][self.dicom_type][scan]
+            for scan in dicom_scans.dicom_categories[self.dicom_type]:
+                image = dicom_scans.dicom_categories[self.dicom_type][scan]
                 file_name = image["image_path"].split("\\")[-1].split(".nii.gz")[0]
                 if(
                     int(image['lastchanged']) > last_scan_timestamp
