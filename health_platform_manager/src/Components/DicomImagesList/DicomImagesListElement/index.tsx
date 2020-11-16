@@ -2,11 +2,11 @@ import React, { ChangeEvent, useState } from "react";
 import { MdArrowDownward, MdDeleteForever } from "react-icons/md";
 import { useDigitalTwinContext } from "../../../hooks";
 import { deleteAWSImage, updateDigitalTwinAttribute } from "../../../services/aws";
-import { Image } from "../../../types/DicomScans";
+import { Image } from "../../../types/DicomImages";
 
 import "./styles.css";
 
-function DicomScansListElement({
+function DicomImagesListElement({
     digitalTwinUuid,
     imageUuid,
     image,
@@ -22,8 +22,8 @@ function DicomScansListElement({
         updateDigitalTwinAttribute(
             digitalTwinUuid,
             [
-                "dicom_scans",
-                "dicom_categories",
+                "dicom_images",
+                "image_types",
                 imageType,
                 imageUuid,
                 "aiaa_consented",
@@ -42,8 +42,8 @@ function DicomScansListElement({
         updateDigitalTwinAttribute(
             digitalTwinUuid,
             [
-                "dicom_scans",
-                "dicom_categories",
+                "dicom_images",
+                "image_types",
                 imageType,
                 imageUuid,
                 "aiaa_approved",
@@ -61,8 +61,8 @@ function DicomScansListElement({
         deleteAWSImage(
             digitalTwinUuid,
             [
-                "dicom_scans",
-                "dicom_categories",
+                "dicom_images",
+                "image_types",
                 imageType,
                 imageUuid
             ],
@@ -127,7 +127,7 @@ function DicomScansListElement({
     return (
         <div
             key={imageUuid}
-            className={`dicom-scans-list-element ${className || ""}`}
+            className={`dicom-images-list-element ${className || ""}`}
         >
             <div className="title">
                 <h4>            
@@ -151,4 +151,4 @@ interface Props {
     className?: string;
 }
 
-export default DicomScansListElement;
+export default DicomImagesListElement;

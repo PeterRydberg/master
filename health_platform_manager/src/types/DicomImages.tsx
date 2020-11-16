@@ -1,6 +1,6 @@
-export interface DicomScans {
+export interface DicomImages {
     lastchanged: number;
-    dicom_categories: {
+    image_types: {
         [imageType: string]: {
             [uuid: string]: Image;
         };

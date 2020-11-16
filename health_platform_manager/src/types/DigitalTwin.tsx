@@ -1,4 +1,4 @@
-import { DicomScans } from "./DicomScans";
+import { DicomImages } from "./DicomImages";
 
 export interface DigitalTwin {
     uuid: string;
@@ -7,7 +7,7 @@ export interface DigitalTwin {
     firstname: string;
     lastname: string;
     conditions: string[];
-    dicom_scans: DicomScans;
+    dicom_images: DicomImages;
 }
 
 export interface ListDigitalTwin {

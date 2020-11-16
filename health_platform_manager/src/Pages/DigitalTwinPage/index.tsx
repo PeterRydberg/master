@@ -2,7 +2,7 @@ import React from "react";
 import { Link, useParams } from "react-router-dom";
 import {MdArrowBack} from 'react-icons/md'
 
-import DicomScansList from "../../Components/DicomScansList";
+import DicomImagesList from "../../Components/DicomImagesList";
 import { useDigitalTwin, DigitalTwinContext } from "../../hooks";
 import { DigitalTwin } from "../../types/DigitalTwin";
 
@@ -53,10 +53,10 @@ function DigitalTwinPage({ className }: Props): JSX.Element {
                     </div>
 
                     <div className="personalia-item fullwidth">
-                        <h2>DICOM scans</h2>
-                        <DicomScansList
+                        <h2>DICOM images</h2>
+                        <DicomImagesList
                             uuid={digitalTwin.uuid}
-                            dicomScans={digitalTwin.dicom_scans}
+                            dicomImages={digitalTwin.dicom_images}
                         />
                     </div>
                 </div>

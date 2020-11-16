@@ -3,7 +3,7 @@ from botocore.exceptions import ClientError
 from mypy_boto3_dynamodb.service_resource import Table
 from typing import Dict, List, Union
 
-from digital_twin.DicomScans import DicomScans, Image
+from digital_twin.DicomImages import DicomImages, Image
 from .DigitalTwin import DigitalTwin
 from .generate import create_and_set_digital_twins
 
@@ -16,7 +16,7 @@ class DigitalTwinPopulation:
     def get_updated_digital_twins(self, last_scan_timestamp: int) -> List[DigitalTwin]:
         digital_twin_table: Table = self.dynamodb.Table('DigitalTwins')
         scan_kwargs = {
-            'FilterExpression': 'dicom_scans.lastchanged > :last_scan_timestamp',
+            'FilterExpression': 'dicom_images.lastchanged > :last_scan_timestamp',
             'ExpressionAttributeValues': {
                 ':last_scan_timestamp': last_scan_timestamp
             }
@@ -58,12 +58,12 @@ class DigitalTwinPopulation:
 
     def pythonize_digital_twin(self, dt_dict) -> DigitalTwin:
         digital_twin: DigitalTwin = DigitalTwin(**dt_dict)
-        dicom_scans: DicomScans = DicomScans(**digital_twin.dicom_scans)
-        digital_twin.dicom_scans = dicom_scans
-        for dicom_category in dicom_scans.dicom_categories:
-            for scan in dicom_scans.dicom_categories[dicom_category]:
-                image: Image = Image(**dicom_scans.dicom_categories[dicom_category][scan])
-                dicom_scans.dicom_categories[dicom_category][scan] = image
+        dicom_images: DicomImages = DicomImages(**digital_twin.dicom_images)
+        digital_twin.dicom_images = dicom_images
+        for image_type in dicom_images.image_types:
+            for image_uuid in dicom_images.image_types[image_type]:
+                image: Image = Image(**dicom_images.image_types[image_type][image_uuid])
+                dicom_images.image_types[image_type][image_uuid] = image
 
         return digital_twin
 

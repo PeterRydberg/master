@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useDigitalTwinContext } from "../../hooks";
 
 import { addAWSImage } from "../../services/aws";
-import { DicomScans } from "../../types/DicomScans";
-import DicomCategoriesListElement from "./DicomCategoriesListElement";
+import { DicomImages } from "../../types/DicomImages";
+import ImageTypesListElement from "./ImageTypesListElement";
 
 import "./styles.css";
 
@@ -83,7 +83,7 @@ const dropdownOptions: string[] = [
     "prostate",
 ];
 
-function DicomScansList({ uuid, dicomScans, className }: Props): JSX.Element {
+function DicomImagesList({ uuid, dicomImages, className }: Props): JSX.Element {
     const { selectValue, selectElement } = useSelect(
         dropdownProps,
         dropdownOptions
@@ -91,13 +91,13 @@ function DicomScansList({ uuid, dicomScans, className }: Props): JSX.Element {
     const { inputValue, inputElement } = useInput(fileProps, selectValue);
     const [, digitalTwinSetters] = useDigitalTwinContext(); // Should use digitalTwin directly, might fix later
 
-    const content = !Object.keys(dicomScans.dicom_categories).length ? (
-        <span>No DICOM scans to show.</span>
+    const content = !Object.keys(dicomImages.image_types).length ? (
+        <span>No DICOM images to show.</span>
     ) : (
-        <div className="dicom-categories-list">
-            {Object.entries(dicomScans.dicom_categories).map(
+        <div className="image-types-list">
+            {Object.entries(dicomImages.image_types).map(
                 ([imageType, imageList]) => (
-                    <DicomCategoriesListElement
+                    <ImageTypesListElement
                         key={imageType}
                         imageType={imageType}
                         digitalTwinUuid={uuid}
@@ -126,7 +126,7 @@ function DicomScansList({ uuid, dicomScans, className }: Props): JSX.Element {
     };
 
     return (
-        <div className={`dicom-scans ${className || ""}`}>
+        <div className={`dicom-images ${className || ""}`}>
             {content}
             <div className="image-adder">
                 <label>Add image: </label>
@@ -145,7 +145,7 @@ function DicomScansList({ uuid, dicomScans, className }: Props): JSX.Element {
 
 interface Props {
     uuid: string;
-    dicomScans: DicomScans;
+    dicomImages: DicomImages;
     className?: string;
 }
 
@@ -163,4 +163,4 @@ interface DropdownProps {
     required: boolean;
 }
 
-export default DicomScansList;
+export default DicomImagesList;

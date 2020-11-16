@@ -9,8 +9,8 @@ if __name__ == "__main__":
         dicom_type="prostate"
     )
 
-    # dtp.generate_new_population(size=100)
-    kge.update_virtual_registry()
+    dtp.generate_new_population(size=100)
+    # kge.update_virtual_registry()
     # kb.process_new_images()
 
     # Refaktorer navn

@@ -5,7 +5,7 @@ from tqdm.std import tqdm
 
 from digital_twin.DigitalTwinPopulation import DigitalTwinPopulation
 from digital_twin.DigitalTwin import DigitalTwin
-from digital_twin.DicomScans import Image
+from digital_twin.DicomImages import Image
 from knowledge_bank.KnowledgeBank import KnowledgeBank
 
 import os
@@ -39,23 +39,23 @@ class KnowledgeGenerationEngine:
 
         next_batch_uuid = register['nextBatch']
         last_scan_timestamp = register['lastScanTimestamp']
-        self.get_new_dicom_scans(register[f'{next_batch_uuid}']['dicom_scans'], last_scan_timestamp)
+        self.get_new_dicom_images(register[f'{next_batch_uuid}']['dicom_images'], last_scan_timestamp)
 
         register['lastScanTimestamp'] = int(datetime.utcnow().timestamp()*1000)
         with open(self.virtual_register, 'w') as file:
             json.dump(register, file, indent=4)
 
-    def get_new_dicom_scans(self, batch, last_scan_timestamp):
+    def get_new_dicom_images(self, batch, last_scan_timestamp):
         updated_digital_twins: List[DigitalTwin] = self.digital_twin_population.get_updated_digital_twins(
             last_scan_timestamp)
 
         digital_twin: DigitalTwin
         for digital_twin in tqdm(updated_digital_twins):
-            dicom_scans = digital_twin.dicom_scans
-            if(self.dicom_type not in dicom_scans.dicom_categories):
+            dicom_images = digital_twin.dicom_images
+            if(self.dicom_type not in dicom_images.image_types):
                 continue
-            for scan in dicom_scans.dicom_categories[self.dicom_type]:
-                image = dicom_scans.dicom_categories[self.dicom_type][scan]
+            for image_uuid in dicom_images.image_types[self.dicom_type]:
+                image = dicom_images.image_types[self.dicom_type][image_uuid]
                 file_name = image.image_path.split("\\")[-1].split(".nii.gz")[0]
                 if(
                     int(image.lastchanged) > last_scan_timestamp
@@ -63,7 +63,7 @@ class KnowledgeGenerationEngine:
                     and bool(image.aiaa_approved)
 
                 ):
-                    registry = self.update_batch_image(image, scan, file_name)
+                    registry = self.update_batch_image(image, image_uuid, file_name)
                     batch.update(registry)
                 elif(
                     int(image.lastchanged) > last_scan_timestamp
@@ -73,12 +73,12 @@ class KnowledgeGenerationEngine:
                     self.delete_file("image", file_name)
                     self.delete_file("segmentation", file_name)
                     self.delete_file("inference", file_name)
-                    batch.pop(scan, None)
+                    batch.pop(image_uuid, None)
 
         return batch
 
     # Copies images directly from Data Sources into the Virtual Registry
-    def update_batch_image(self, image: Image, scan: str, file_name: str):
+    def update_batch_image(self, image: Image, image_uuid: str, file_name: str):
         registry = defaultdict(defaultdict)
 
         if(image.image_path != ''):
@@ -86,14 +86,14 @@ class KnowledgeGenerationEngine:
                 image.image_path,
                 self.get_file_path("image", file_name)
             )
-            registry[f'{scan}']['image_path'] = image_path
+            registry[f'{image_uuid}']['image_path'] = image_path
 
         if(image.segmentation_path != ''):
             segmentation_path = shutil.copy(
                 image.segmentation_path,
                 self.get_file_path("segmentation", file_name)
             )
-            registry[f'{scan}']['segmentation_path'] = segmentation_path
+            registry[f'{image_uuid}']['segmentation_path'] = segmentation_path
         else:
             self.delete_file("segmentation", file_name)
 
@@ -102,7 +102,7 @@ class KnowledgeGenerationEngine:
                 image.inference_path,
                 self.get_file_path("inference", file_name)
             )
-            registry[f'{scan}']['inference_path'] = inference_path
+            registry[f'{image_uuid}']['inference_path'] = inference_path
         else:
             self.delete_file("inference", file_name)
 
@@ -134,7 +134,7 @@ class KnowledgeGenerationEngine:
             'lastScanTimestamp': 0,
             f'{init_batch}': {
                 'trained': False,
-                'dicom_scans': {}
+                'dicom_images': {}
             }
         }
 
@@ -159,7 +159,7 @@ class KnowledgeGenerationEngine:
     def create_new_batch(self, register):
         batch_uuid = str(uuid.uuid4())
         register['nextBatch'] = batch_uuid
-        register[f'{batch_uuid}'] = {'trained': False, 'dicom_scans': []}
+        register[f'{batch_uuid}'] = {'trained': False, 'dicom_images': []}
 
         return register
 
@@ -183,14 +183,14 @@ class KnowledgeGenerationEngine:
 
 
 # Example: registry.json
-# DICOM scans points to data sources
+# DICOM images point to data sources
 
 # {
 #     'nextBatch': '[nextBatchUuid]',
 #     'lastScanTimestamp': int,
 #     '[batchUuid1]': {
 #         'trained': False,
-#         'dicom_scans': [
+#         'dicom_images': [
 #             '[uuid1]': Image,
 #             '[uuid2]': Image,
 #             '[uuid3]': Image
@@ -198,7 +198,7 @@ class KnowledgeGenerationEngine:
 #     },
 #     '[batchUuid2]': {
 #         'trained': True,
-#         'dicom_scans': [
+#         'dicom_images': [
 #             '[uuid4]': Image,
 #             '[uuid5]': Image,
 #         ]

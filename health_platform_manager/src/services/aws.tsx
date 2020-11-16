@@ -1,7 +1,7 @@
 import * as AWS from "aws-sdk";
 
 import { v4 as uuidv4 } from "uuid";
-import { Image } from "../types/DicomScans";
+import { Image } from "../types/DicomImages";
 
 import { DigitalTwin } from "../types/DigitalTwin";
 
@@ -82,7 +82,7 @@ export async function updateDigitalTwinAttribute(
         TableName: "DigitalTwins",
         Key: { uuid: uuid },
         ReturnValues: "ALL_NEW",
-        UpdateExpression: `SET ${attributeString} = :val, dicom_scans.lastchanged = :date${lastChangedString}`,
+        UpdateExpression: `SET ${attributeString} = :val, dicom_images.lastchanged = :date${lastChangedString}`,
         ExpressionAttributeNames: attributeDict,
         ExpressionAttributeValues: {
             ":val": value,
@@ -99,7 +99,7 @@ export async function addAWSImage(
     attribute: string,
     image: Image
 ): Promise<DigitalTwin | void> {
-    makeDicomScans(uuid);
+    makeDicomImages(uuid);
     makeAttribute(uuid, attribute);
     return makeUuid(uuid, attribute, image);
 }
@@ -133,8 +133,8 @@ export async function makeUuid(
         Key: { uuid: uuid },
         ReturnValues: "ALL_NEW",
         UpdateExpression: `
-            SET dicom_scans.lastchanged = :date,
-            dicom_scans.dicom_categories.#attribute.#uuid = if_not_exists(dicom_scans.dicom_categories.#attribute.#uuid, :image)
+            SET dicom_images.lastchanged = :date,
+            dicom_images.image_types.#attribute.#uuid = if_not_exists(dicom_images.image_types.#attribute.#uuid, :image)
             `,
         ExpressionAttributeNames: {
             "#uuid": uuidv4(),
@@ -163,8 +163,8 @@ export function makeAttribute(uuid: string, attribute: string): void {
         Key: { uuid: uuid },
         ReturnValues: "ALL_NEW",
         UpdateExpression: `
-            SET dicom_scans.lastchanged = :date,
-            dicom_scans.dicom_categories.#attribute = if_not_exists(dicom_scans.dicom_categories.#attribute, :emptymap)
+            SET dicom_images.lastchanged = :date,
+            dicom_images.image_types.#attribute = if_not_exists(dicom_images.image_types.#attribute, :emptymap)
             `,
         ExpressionAttributeNames: {
             "#attribute": attribute,
@@ -178,14 +178,14 @@ export function makeAttribute(uuid: string, attribute: string): void {
     updateAWSDigitalTwin(params);
 }
 
-export function makeDicomScans(uuid: string): void {
+export function makeDicomImages(uuid: string): void {
     let params: Parameters = {
         TableName: "DigitalTwins",
         Key: { uuid: uuid },
         ReturnValues: "ALL_NEW",
         UpdateExpression: `
-            SET dicom_scans.lastchanged = :date,
-            dicom_scans.dicom_categories = if_not_exists(dicom_scans.dicom_categories, :emptymap)
+            SET dicom_images.lastchanged = :date,
+            dicom_images.image_types = if_not_exists(dicom_images.image_types, :emptymap)
             `,
         ExpressionAttributeValues: {
             ":emptymap": {},

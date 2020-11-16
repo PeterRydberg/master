@@ -1,12 +1,8 @@
 {
-    "nextBatch": "13c6300b-a149-47b0-91ab-4af453352591",
-    "lastScanTimestamp": 1605531970726,
-    "13c6300b-a149-47b0-91ab-4af453352591": {
+    "nextBatch": "5529d782-58b3-4e75-a786-140c158ec3ec",
+    "lastScanTimestamp": 1605549377718,
+    "5529d782-58b3-4e75-a786-140c158ec3ec": {
         "trained": false,
-        "dicom_scans": {
-            "ad6470aa-3c98-4bde-8c95-b03e6f616550": {
-                "image_path": ".\\knowledge_generation_engine\\virtual_registries\\prostate\\images\\prostate_45.nii.gz"
-            }
-        }
+        "dicom_images": {}
     }
 }

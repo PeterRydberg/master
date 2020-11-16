@@ -26,19 +26,19 @@ class Image():
         self.image_path = image_path
 
 
-class DicomScans():
+class DicomImages():
     def __init__(
         self,
-        dicom_categories: Dict[str, Dict[str, Image]] = {},
+        image_types: Dict[str, Dict[str, Image]] = {},
         lastchanged: int = int(datetime.utcnow().timestamp()*1000)
     ) -> None:
-        self.dicom_categories: Dict[str, Dict[str, Image]] = dicom_categories
+        self.image_types: Dict[str, Dict[str, Image]] = image_types
         self.lastchanged: int = lastchanged
 
-# Example: dicom_scans =
+# Example: dicom_images =
 # {
 #     "lastchanged": 1601658908526,
-#     "dicom_categories": {
+#     "image_types": {
 #         "heart": {
 #             "[uuid]"{
 #                 "created": 1601658908526,

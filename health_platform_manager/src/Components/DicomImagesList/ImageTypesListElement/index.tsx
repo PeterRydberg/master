@@ -2,12 +2,12 @@ import React, { useState } from "react";
 
 import { MdArrowDownward } from "react-icons/md";
 
-import { Image } from "../../../types/DicomScans";
-import DicomScansListElement from "../DicomScansListElement";
+import { Image } from "../../../types/DicomImages";
+import DicomImagesListElement from "../DicomImagesListElement";
 
 import "./styles.css";
 
-function DicomCategoriesListElement({
+function ImageTypesListElement({
     imageType,
     digitalTwinUuid,
     imageList,
@@ -18,7 +18,7 @@ function DicomCategoriesListElement({
     const listContent = openList ? (
         <div className="list-content">
             {Object.entries(imageList).map(([imageUuid, image]) => (
-                <DicomScansListElement
+                <DicomImagesListElement
                     key={imageUuid}
                     digitalTwinUuid={digitalTwinUuid}
                     imageUuid={imageUuid}
@@ -34,7 +34,7 @@ function DicomCategoriesListElement({
     return (
         <div
             key={imageType}
-            className={`dicom-categories-list-element ${className || ""}`}
+            className={`image-types-list-element ${className || ""}`}
         >
             <div onClick={() => setOpenList(!openList)} className="togglable">
                 <h3>Type {imageType} ({Object.keys(imageList).length} images available) <MdArrowDownward/> </h3>
@@ -51,4 +51,4 @@ interface Props {
     className?: string;
 }
 
-export default DicomCategoriesListElement;
+export default ImageTypesListElement;
