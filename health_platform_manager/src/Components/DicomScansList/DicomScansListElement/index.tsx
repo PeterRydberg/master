@@ -18,7 +18,7 @@ function DicomScansListElement({
 
     const toggleConsent = (e: ChangeEvent<HTMLInputElement>): void => {
         e.preventDefault();
-        const newState: boolean = !image.share_consent ? true : false;
+        const newState: boolean = !image.aiaa_consented ? true : false;
         updateDigitalTwinAttribute(
             digitalTwinUuid,
             [
@@ -26,7 +26,26 @@ function DicomScansListElement({
                 "dicom_categories",
                 imageType,
                 imageUuid,
-                "share_consent",
+                "aiaa_consented",
+            ],
+            newState
+        ).then((updatedDigitalTwin) => {
+            if (updatedDigitalTwin)
+                digitalTwinSetters.setFullDigitalTwin(updatedDigitalTwin);
+        });
+    };
+
+    const toggleApproval = (e: ChangeEvent<HTMLInputElement>): void => {
+        e.preventDefault();
+        const newState: boolean = !image.aiaa_approved ? true : false;
+        updateDigitalTwinAttribute(
+            digitalTwinUuid,
+            [
+                "dicom_scans",
+                "dicom_categories",
+                imageType,
+                imageUuid,
+                "aiaa_approved",
             ],
             newState
         ).then((updatedDigitalTwin) => {
@@ -73,17 +92,30 @@ function DicomScansListElement({
                     <h5 style={{display: "inline", margin: 0}}>AIAA inference result: </h5>{image.inference_path || "Unprocessed"}
                 </div>
             </div>
+            <div>
+                <div className="image-item title">
+                    <h5 style={{display: "inline", margin: 0}}>Patient consent to information share:</h5>
+                    <input
+                        type="checkbox"
+                        name="consent"
+                        id="consent-checkbox"
+                        value="Consent"
+                        checked={image.aiaa_consented ? true : false}
+                        onChange={toggleConsent}
+                    />
+                </div>
 
-            <div className="image-item title">
-                <h5 style={{display: "inline", margin: 0}}>Patient consent to information share:</h5>
-                <input
-                    type="checkbox"
-                    name="consent"
-                    id="consent-checkbox"
-                    value="Consent"
-                    checked={image.share_consent ? true : false}
-                    onChange={toggleConsent}
-                />
+                <div className="image-item title">
+                    <h5 style={{display: "inline", margin: 0}}>Medical annotation approval:</h5>
+                    <input
+                        type="checkbox"
+                        name="consent"
+                        id="consent-checkbox"
+                        value="Consent"
+                        checked={image.aiaa_approved ? true : false}
+                        onChange={toggleApproval}
+                    />
+                </div>
             </div>
         </div>
     ) : (

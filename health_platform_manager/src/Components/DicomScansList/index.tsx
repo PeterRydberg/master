@@ -115,7 +115,8 @@ function DicomScansList({ uuid, dicomScans, className }: Props): JSX.Element {
             image_path: createFilePath(inputValue, selectValue, false),
             segmentation_path: "",
             inference_path: "",
-            share_consent: false,
+            aiaa_consented: false,
+            aiaa_approved: false
         };
 
         addAWSImage(uuid, selectValue, image).then((updatedDigitalTwin) => {

@@ -61,18 +61,21 @@ class KnowledgeGenerationEngine:
                 file_name = image["image_path"].split("\\")[-1].split(".nii.gz")[0]
                 if(
                     int(image['lastchanged']) > last_scan_timestamp
-                    and bool(image['share_consent'])
+                    and bool(image['aiaa_consented'])
+                    and bool(image['aiaa_approved'])
+
                 ):
                     registry = self.update_batch_image(image, scan, file_name)
                     batch.update(registry)
                 elif(
                     int(image['lastchanged']) > last_scan_timestamp
-                    and not bool(image['share_consent'])
+                    and (not bool(image['aiaa_consented'])
+                         or not bool(image['aiaa_approved']))
                 ):
                     self.delete_file("image", file_name)
                     self.delete_file("segmentation", file_name)
                     self.delete_file("inference", file_name)
-                    batch.pop(scan)
+                    batch.pop(scan, None)
 
         return batch
 

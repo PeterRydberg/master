@@ -17,7 +17,8 @@ class Image(dict):
         self.image_path: str = image_path
         self.segmentation_path: Union[str, None] = segmentation_path
         self.inference_path: Union[str, None] = inference_path
-        self.share_consent: bool = False
+        self.aiaa_consented: bool = False
+        self.aiaa_approved: bool = False
 
     def update(self, image_path: str):
         self.lastchanged = int(datetime.utcnow().timestamp()*1000)
@@ -50,12 +51,12 @@ class DicomScans():
 #             "[uuid]"{
 #                 "created": 1601658908526,
 #                 "lastchanged": 1601658908526,
-#                 "value": "[data_source]"
+#                 [paths, aiaa consent, etc]
 #             }
 #             "[uuid2]"{
 #                 "created": 1601658908526,
 #                 "lastchanged": 1601658908526,
-#                 "value": "[data_source]"
+#                 [paths, aiaa consent, etc]
 #             }
 #         }
 #     }

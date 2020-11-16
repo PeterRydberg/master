@@ -13,5 +13,6 @@ export interface Image {
     image_path: string;
     segmentation_path: string;
     inference_path: string;
-    share_consent: boolean;
+    aiaa_consented: boolean;
+    aiaa_approved: boolean;
 }
