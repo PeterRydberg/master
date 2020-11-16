@@ -65,20 +65,31 @@ async function updateAWSDigitalTwin(
 export async function updateDigitalTwinAttribute(
     uuid: string,
     attributes: string[],
-    value: string | boolean | number
-): Promise<DigitalTwin | void> {
+    value: string | boolean | number,
+    updateLastChanged?: boolean
+    ): Promise<DigitalTwin | void> {
     const [attributeDict, attributeString] = spreadAttributes(attributes);
+    
+    let lastChangedString = ""
+    if (updateLastChanged){
+        attributeDict['#lastchanged'] = 'lastchanged';
+        let lastChangedArray = attributeString.split('#')
+        lastChangedArray.pop()
+        lastChangedString = `, ${lastChangedArray.join("#")}#lastchanged = :date`
+    }
 
     let params: Parameters = {
         TableName: "DigitalTwins",
         Key: { uuid: uuid },
         ReturnValues: "ALL_NEW",
-        UpdateExpression: `set ${attributeString} = :val`,
+        UpdateExpression: `SET ${attributeString} = :val, dicom_scans.lastchanged = :date${lastChangedString}`,
         ExpressionAttributeNames: attributeDict,
         ExpressionAttributeValues: {
             ":val": value,
+            ":date": Date.now()
         },
     };
+    
 
     return updateAWSDigitalTwin(params);
 }

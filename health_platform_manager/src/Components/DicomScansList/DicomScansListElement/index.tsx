@@ -28,7 +28,8 @@ function DicomScansListElement({
                 imageUuid,
                 "aiaa_consented",
             ],
-            newState
+            newState,
+            true
         ).then((updatedDigitalTwin) => {
             if (updatedDigitalTwin)
                 digitalTwinSetters.setFullDigitalTwin(updatedDigitalTwin);
@@ -47,7 +48,8 @@ function DicomScansListElement({
                 imageUuid,
                 "aiaa_approved",
             ],
-            newState
+            newState,
+            true
         ).then((updatedDigitalTwin) => {
             if (updatedDigitalTwin)
                 digitalTwinSetters.setFullDigitalTwin(updatedDigitalTwin);
