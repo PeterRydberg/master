@@ -1,3 +1,4 @@
+aiaa-client @ file:///C:/Users/peter/Prosjekter/ai-assisted-annotation-client/dist/aiaa_client-1.0.2-py3-none-any.whl
 autopep8==1.5.4
 boto3==1.14.58
 boto3-stubs==1.15.2.0
@@ -8,10 +9,11 @@ jmespath==0.10.0
 mccabe==0.6.1
 mypy-boto3-dynamodb==1.15.2.0
 names==0.3.0
-numpy==1.19.4
+numpy==1.19.3
 pycodestyle==2.6.0
 pyflakes==2.2.0
 python-dateutil==2.8.1
+python-dotenv==0.15.0
 s3transfer==0.3.3
 SimpleITK==2.0.1
 six==1.15.0
