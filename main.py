@@ -11,6 +11,6 @@ if __name__ == "__main__":
     kge.update_virtual_register(image_type="prostate")
     # kb.process_new_images()
 
-    # Tillat både segmentation og inferens (helst opprette nye modeller automatisk)
     # Sett opp Ecosystem.py
+    # Opprette nye modeller til AIAA automatisk
     # Tren automatisk
