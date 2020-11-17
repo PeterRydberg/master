@@ -1,8 +1,0 @@
-{
-    "nextBatch": "5529d782-58b3-4e75-a786-140c158ec3ec",
-    "lastScanTimestamp": 1605549377718,
-    "5529d782-58b3-4e75-a786-140c158ec3ec": {
-        "trained": false,
-        "dicom_images": {}
-    }
-}

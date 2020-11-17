@@ -1,0 +1,13 @@
+{
+    "nextBatch": "5f3d2c5e-1cc2-4919-b61f-c96c34daf864",
+    "lastScanTimestamp": 1605617923839,
+    "5f3d2c5e-1cc2-4919-b61f-c96c34daf864": {
+        "trained": false,
+        "dicom_images": {
+            "5ee63353-8acf-4d78-8614-678702aa9b54": {
+                "image_path": ".\\knowledge_generation_engine\\virtual_registers\\prostate\\images\\prostate_45.nii.gz",
+                "segmentation_path": ".\\knowledge_generation_engine\\virtual_registers\\prostate\\segmentations\\prostate_45_seg.nii.gz"
+            }
+        }
+    }
+}
