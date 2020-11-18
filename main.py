@@ -1,16 +1,11 @@
-from digital_twin.DigitalTwinPopulation import DigitalTwinPopulation
-from knowledge_bank.KnowledgeBank import KnowledgeBank
-from knowledge_generation_engine.KnowledgeGenerationEngine import KnowledgeGenerationEngine
+from Ecosystem import Ecosystem
 
 if __name__ == "__main__":
-    dtp = DigitalTwinPopulation()
-    kb = KnowledgeBank()
-    kge = KnowledgeGenerationEngine()
+    eco = Ecosystem()
 
-    # dtp.generate_new_population(size=100)
-    kge.update_virtual_register(image_type="prostate")
-    # kb.process_new_images()
+    # eco.digital_twin_population.generate_new_population(size=100)
+    eco.knowledge_generation_engine.update_virtual_register(image_type="prostate")
+    # eco.knowledge_bank.process_new_images()
 
-    # Sett opp Ecosystem.py
-    # Opprette nye modeller til AIAA automatisk
     # Tren automatisk
+    # Opprette nye modeller til AIAA automatisk

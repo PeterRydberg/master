@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 
 from datetime import datetime
@@ -5,12 +7,16 @@ from enum import Enum
 from typing import Dict, List, Union
 from py_client import client_api
 from tqdm.std import tqdm
-from dotenv import load_dotenv
 
 from digital_twin.DicomImages import Image
 from digital_twin.DigitalTwin import DigitalTwin
-from digital_twin.DigitalTwinPopulation import DigitalTwinPopulation
 
+# In order to use IDE type checking, import is not actually used
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from Ecosystem import Ecosystem
+
+from dotenv import load_dotenv
 load_dotenv()
 
 DATA_SOURCES = os.getenv('DATA_SOURCE_PATH')
@@ -35,14 +41,14 @@ class DefaultSegmentationModels(Enum):
 
 
 class KnowledgeBank:
-    def __init__(self, digital_twin_population=DigitalTwinPopulation()) -> None:
+    def __init__(self, ecosystem) -> None:
+        self.ecosystem: Ecosystem = ecosystem
         self.models = {}
         self.client = client_api.AIAAClient(server_url='http://129.241.113.190:9000/')
-        self.digital_twin_population: DigitalTwinPopulation = digital_twin_population
         self.last_scan_timestamp: int = 0
 
     def process_new_images(self):
-        updated_digital_twins: List[DigitalTwin] = self.digital_twin_population.get_updated_digital_twins(
+        updated_digital_twins: List[DigitalTwin] = self.ecosystem.digital_twin_population.get_updated_digital_twins(
             self.last_scan_timestamp)
 
         digital_twin: DigitalTwin
@@ -68,7 +74,7 @@ class KnowledgeBank:
             image_uuid: str,
             model: str = "",
             loaded_user: Union[DigitalTwin, None] = None) -> None:
-        user: Union[DigitalTwin, None] = loaded_user if loaded_user is not None else self.digital_twin_population.get_user_by_id(
+        user: Union[DigitalTwin, None] = loaded_user if loaded_user is not None else self.ecosystem.digital_twin_population.get_user_by_id(
             user_uuid)
         if(user is None):
             return
@@ -160,4 +166,4 @@ class KnowledgeBank:
             image_uuid,
             f"{task_type}_path"
         ]
-        self.digital_twin_population.update_digital_twin_attribute(user_uuid, attributes, path)
+        self.ecosystem.digital_twin_population.update_digital_twin_attribute(user_uuid, attributes, path)

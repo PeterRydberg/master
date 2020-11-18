@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import boto3
+
 from botocore.exceptions import ClientError
 from mypy_boto3_dynamodb.service_resource import Table
 from typing import Dict, List, Union
@@ -7,9 +10,15 @@ from digital_twin.DicomImages import DicomImages, Image
 from .DigitalTwin import DigitalTwin
 from .generate import create_and_set_digital_twins
 
+# In order to use IDE type checking, import is not actually used
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from Ecosystem import Ecosystem
+
 
 class DigitalTwinPopulation:
-    def __init__(self) -> None:
+    def __init__(self, ecosystem) -> None:
+        self.ecosystem: Ecosystem = ecosystem
         self.digital_twins_cache: Union[List[DigitalTwin], None] = []
         self.dynamodb = boto3.resource(service_name='dynamodb')
 

@@ -1,17 +1,22 @@
-from collections import defaultdict
-from datetime import datetime
-from typing import Dict, List
-from tqdm.std import tqdm
-
-from digital_twin.DigitalTwinPopulation import DigitalTwinPopulation
-from digital_twin.DigitalTwin import DigitalTwin
-from digital_twin.DicomImages import Image
-from knowledge_bank.KnowledgeBank import KnowledgeBank
+from __future__ import annotations
 
 import os
 import shutil
 import json
 import uuid
+
+from collections import defaultdict
+from datetime import datetime
+from typing import Dict, List
+from tqdm.std import tqdm
+
+from digital_twin.DigitalTwin import DigitalTwin
+from digital_twin.DicomImages import Image
+
+# In order to use IDE type checking, import is not actually used
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from Ecosystem import Ecosystem
 
 
 VIRTUAL_REGISTERS = 'knowledge_generation_engine\\virtual_registers'
@@ -19,12 +24,8 @@ DICOM_TYPES = ['braintumour', 'heart', 'hippocampus', 'prostate']
 
 
 class KnowledgeGenerationEngine:
-    def __init__(self,
-                 knowledge_bank=KnowledgeBank(),
-                 digital_twin_population=DigitalTwinPopulation()
-                 ) -> None:
-        self.knowledge_bank: KnowledgeBank = knowledge_bank
-        self.digital_twin_population: DigitalTwinPopulation = digital_twin_population
+    def __init__(self, ecosystem) -> None:
+        self.ecosystem: Ecosystem = ecosystem
 
     def update_virtual_register(self, image_type: str):
         virtual_register_dir_path = f'{VIRTUAL_REGISTERS}\\{image_type}'
@@ -49,7 +50,7 @@ class KnowledgeGenerationEngine:
             json.dump(register, file, indent=4)
 
     def add_updated_images_to_register(self, image_type: str, batch: Dict[str, Dict], last_scan_timestamp: int):
-        updated_digital_twins: List[DigitalTwin] = self.digital_twin_population.get_updated_digital_twins(
+        updated_digital_twins: List[DigitalTwin] = self.ecosystem.digital_twin_population.get_updated_digital_twins(
             last_scan_timestamp)
 
         digital_twin: DigitalTwin
