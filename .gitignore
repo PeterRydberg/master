@@ -425,6 +425,7 @@ sketch
 knowledge_generation_engine/external_registers
 knowledge_generation_engine/external_registries
 knowledge_generation_engine/virtual_registers/**/*.nii.gz
+knowledge_generation_engine/virtual_registers/**/register.json
 knowledge_generation_engine/clara/**/models
 data_sources
 ip.txt
