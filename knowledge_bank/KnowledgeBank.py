@@ -20,6 +20,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DATA_SOURCES = os.getenv('DATA_SOURCE_PATH')
+AIAA_SERVER = os.getenv('AIAA_SERVER')
 
 
 class DefaultSegmentationModels(Enum):
@@ -44,7 +45,7 @@ class KnowledgeBank:
     def __init__(self, ecosystem) -> None:
         self.ecosystem: Ecosystem = ecosystem
         self.models = {}
-        self.client = client_api.AIAAClient(server_url='http://129.241.113.190:9000/')
+        self.aiaa_client = client_api.AIAAClient(server_url=AIAA_SERVER)
         self.last_scan_timestamp: int = 0
 
     def process_new_images(self):
@@ -105,7 +106,7 @@ class KnowledgeBank:
         if(model_to_use is None):
             return ""
         aiaa_path = f'{DATA_SOURCES}\\{image_type}\\segmentations\\{image_name}_seg.nii.gz'
-        self.client.segmentation(
+        self.aiaa_client.segmentation(
             model=model_to_use,
             image_in=image_path,
             image_out=aiaa_path
@@ -126,7 +127,7 @@ class KnowledgeBank:
         if(model_to_use is None):
             return ""
         aiaa_path = f'{DATA_SOURCES}\\{image_type}\\inferences\\{image_name}_inf.nii.gz'
-        self.client.inference(
+        self.aiaa_client.inference(
             params=params,
             model=model_to_use,
             image_in=image_path,
