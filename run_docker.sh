@@ -6,7 +6,7 @@ export SOURCE_DIR=/home/hmrydber/Prosjekter/master
 export MOUNT_DIR=/master
 export LOCAL_PORT=9000
 export REMOTE_PORT=80
-export DOCKER_IMAGE=nvcr.io/nvidia/clara-train-sdk:v3.0
+export DOCKER_IMAGE=nvcr.io/nvidia/clara-train-sdk:v3.1
 
 docker run $NVIDIA_RUNTIME $OPTIONS -it --rm \
 -p $LOCAL_PORT:$REMOTE_PORT \
