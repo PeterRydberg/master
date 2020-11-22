@@ -186,7 +186,7 @@ class KnowledgeBank:
         )
 
         ssh_stdin, ssh_stdout, ssh_stderr = self.ssh_client.exec_command(f"{command} {flags}")
-        exit_code = ssh_stdout.channel.recv_exit_status()  # handles async exit error
+        # exit_code = ssh_stdout.channel.recv_exit_status()  # handles async exit error
 
         print(ssh_stdin)
         for line in ssh_stdout:

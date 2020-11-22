@@ -427,5 +427,6 @@ knowledge_generation_engine/external_registries
 knowledge_generation_engine/virtual_registers/**/*.nii.gz
 knowledge_generation_engine/virtual_registers/**/register.json
 knowledge_generation_engine/clara/**/models
+knowledge_bank/aiaa
 data_sources
 ip.txt

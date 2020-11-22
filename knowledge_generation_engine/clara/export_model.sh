@@ -7,6 +7,8 @@ while getopts t:n: flag; do
     esac
 done
 
+echo "\nExporting model $MODEL_NAME to knowledge bank\n"
+
 mkdir -p /master/knowledge_bank/exported_models/$MODEL_TYPE/$MODEL_NAME/
 chmod 755 /master/knowledge_bank/exported_models/$MODEL_TYPE/$MODEL_NAME/
 chmod 644 /master/knowledge_generation_engine/clara/$MODEL_TYPE/$MODEL_NAME/{models/model.fzn.pb,models/model.trt.pb,config/config_aiaa.json}
