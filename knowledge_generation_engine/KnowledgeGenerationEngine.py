@@ -4,10 +4,12 @@ import os
 import shutil
 import json
 import uuid
+import paramiko
 
 from collections import defaultdict
 from datetime import datetime
 from typing import Dict, List
+from paramiko.client import SSHClient
 from tqdm.std import tqdm
 
 from digital_twin.DigitalTwin import DigitalTwin
@@ -18,6 +20,9 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from Ecosystem import Ecosystem
 
+from dotenv import load_dotenv
+load_dotenv()
+
 
 VIRTUAL_REGISTERS = 'knowledge_generation_engine\\virtual_registers'
 DICOM_TYPES = ['braintumour', 'heart', 'hippocampus', 'prostate']
@@ -26,6 +31,8 @@ DICOM_TYPES = ['braintumour', 'heart', 'hippocampus', 'prostate']
 class KnowledgeGenerationEngine:
     def __init__(self, ecosystem) -> None:
         self.ecosystem: Ecosystem = ecosystem
+        self.ssh_client: SSHClient = paramiko.SSHClient()
+        self.ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
     def update_virtual_register(self, image_type: str):
         virtual_register_dir_path = f'{VIRTUAL_REGISTERS}\\{image_type}'
@@ -167,6 +174,11 @@ class KnowledgeGenerationEngine:
 
         return register
 
+    def add_pretrained_model(self, image_type: str, model: str, version: str):
+        command = "./Prosjekter/master/knowledge_generation_engine/get_pretrained_model.sh"
+        flags = f"-t {image_type} -n {model} -v {version}"
+        self.run_ssh_command(command=command, flags=flags)
+
     def train_virtual_register_batch(self, batch, virtual_register_path: str):
         # TODO: Make this work by running a batch script instead
         # (train.sh and train_finetune.sh)
@@ -185,6 +197,20 @@ class KnowledgeGenerationEngine:
         # self.knowledge_bank.update_model(self.dicom_type, model)
         pass
 
+    def run_ssh_command(self, command: str, flags: str):
+        self.ssh_client.connect(
+            hostname="heid.idi.ntnu.no",
+            username=os.getenv('HEID_USER'),
+            password=os.getenv('HEID_PWD'),
+        )
+
+        _, ssh_stdout, _ = self.ssh_client.exec_command(f"{command} {flags}")
+        # exit_code = ssh_stdout.channel.recv_exit_status()  # handles async exit error
+
+        for line in ssh_stdout:
+            print(line.strip())
+
+        self.ssh_client.close()
 
 # Example: register.json
 # DICOM images point to data sources

@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import os
+import paramiko
 
 from datetime import datetime
 from enum import Enum
 from typing import Dict, List, Union
+from paramiko.client import SSHClient
 from py_client import client_api
 from tqdm.std import tqdm
 
@@ -44,9 +46,11 @@ class DefaultSegmentationModels(Enum):
 class KnowledgeBank:
     def __init__(self, ecosystem) -> None:
         self.ecosystem: Ecosystem = ecosystem
-        self.models = {}
         self.aiaa_client = client_api.AIAAClient(server_url=AIAA_SERVER)
+        self.ssh_client: SSHClient = paramiko.SSHClient()
+        self.ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         self.last_scan_timestamp: int = 0
+        self.models = {}
 
     def process_new_images(self):
         updated_digital_twins: List[DigitalTwin] = self.ecosystem.digital_twin_population.get_updated_digital_twins(
@@ -168,3 +172,24 @@ class KnowledgeBank:
             f"{task_type}_path"
         ]
         self.ecosystem.digital_twin_population.update_digital_twin_attribute(user_uuid, attributes, path)
+
+    def add_model_to_aiaa_server(self, image_type: str, model: str, ip: str):
+        command = "./Prosjekter/master/knowledge_bank/put_model.sh"
+        flags = f"-t {image_type} -n {model} -i {ip}"
+        self.run_ssh_command(command=command, flags=flags)
+
+    def run_ssh_command(self, command: str, flags: str):
+        self.ssh_client.connect(
+            hostname="heid.idi.ntnu.no",
+            username=os.getenv('HEID_USER'),
+            password=os.getenv('HEID_PWD'),
+        )
+
+        ssh_stdin, ssh_stdout, ssh_stderr = self.ssh_client.exec_command(f"{command} {flags}")
+        exit_code = ssh_stdout.channel.recv_exit_status()  # handles async exit error
+
+        print(ssh_stdin)
+        for line in ssh_stdout:
+            print(line.strip())
+
+        self.ssh_client.close()

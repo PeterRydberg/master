@@ -1,7 +1,11 @@
 #!/bin/bash
 
-export MODEL_TYPE=prostate
-export MODEL_NAME=clara_train_mri_prostate_cg_and_pz_automl_v1
+while getopts t:n: flag; do
+    case "${flag}" in
+    t) MODEL_TYPE=${OPTARG} ;;
+    n) MODEL_NAME=${OPTARG} ;;
+    esac
+done
 
 mkdir -p /master/knowledge_bank/exported_models/$MODEL_TYPE/$MODEL_NAME/
 chmod a+x export_model.sh

@@ -1,9 +1,13 @@
 #!/bin/bash
 
-export MODEL_TYPE=prostate
-export MODEL_NAME=clara_train_mri_prostate_cg_and_pz_automl
-export VERSION=1
+while getopts t:n:v: flag; do
+    case "${flag}" in
+    t) MODEL_TYPE=${OPTARG} ;;
+    n) MODEL_NAME=${OPTARG} ;;
+    v) VERSION=${OPTARG} ;;
+    esac
+done
 
 ngc registry model download-version nvidia/med/$MODEL_NAME:$VERSION --dest /master/knowledge_generation_engine/clara/$MODEL_TYPE
 chmod a+x export_model.sh
-./export_model.sh
+./export_model.sh -t $MODEL_TYPE -n "'$MODEL_NAME'_'$VERSION'"

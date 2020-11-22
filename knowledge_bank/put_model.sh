@@ -1,9 +1,16 @@
 #!/bin/bash
 
-export MODEL_TYPE=prostate
-export MODEL_NAME=clara_train_mri_prostate_cg_and_pz_automl_v1
+while getopts t:n:i: flag; do
+    case "${flag}" in
+    t) MODEL_TYPE=${OPTARG} ;;
+    n) MODEL_NAME=${OPTARG} ;;
+    i) IP_ADDR=${OPTARG} ;;
+    esac
+done
+
+echo "Adding '$MODEL_NAME' to '$IP_ADDR'"
 
 # Adding new model to server
-curl -X PUT "http://172.17.0.15/admin/model/$MODEL_NAME" \
-    -F "config=@exported_models/$MODEL_TYPE/$MODEL_NAME/config_aiaa.json;type=application/json" \
-    -F "data=@exported_models/$MODEL_TYPE/$MODEL_NAME/model.trt.pb"
+curl -X PUT "http://'$IP_ADDR'/admin/model/'$MODEL_NAME'" \
+    -F "config=@/master/knowledge_bank/exported_models/'$MODEL_TYPE'/'$MODEL_NAME'/config_aiaa.json;type=application/json" \
+    -F "data=@/master/knowledge_bank/exported_models/'$MODEL_TYPE'/'$MODEL_NAME'/model.trt.pb"
