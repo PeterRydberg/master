@@ -9,5 +9,4 @@ done
 
 # Do some training
 echo "Exporting the frozen model to knowledge bank\n"
-chmod a+x export_model.sh
-./export_model.sh
+./knowledge_generation_engine/clara/export_model.sh -t $MODEL_TYPE -n "$MODEL_NAME\\_$VERSION"
