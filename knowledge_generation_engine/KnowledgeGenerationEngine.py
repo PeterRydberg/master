@@ -175,9 +175,9 @@ class KnowledgeGenerationEngine:
         return register
 
     def add_pretrained_model(self, image_type: str, model: str, version: str):
-        command = "./Prosjekter/master/knowledge_generation_engine/get_pretrained_model.sh"
+        command = "./knowledge_generation_engine/clara/get_pretrained_model.sh"
         flags = f"-t {image_type} -n {model} -v {version}"
-        self.run_ssh_command(command=command, flags=flags)
+        self.run_ssh_command(command=command, flags=flags, docker=True)
 
     def train_virtual_register_batch(self, batch, virtual_register_path: str):
         # TODO: Make this work by running a batch script instead
@@ -197,15 +197,15 @@ class KnowledgeGenerationEngine:
         # self.knowledge_bank.update_model(self.dicom_type, model)
         pass
 
-    def run_ssh_command(self, command: str, flags: str):
+    def run_ssh_command(self, command: str, flags: str, docker: bool = False):
         self.ssh_client.connect(
             hostname="heid.idi.ntnu.no",
             username=os.getenv('HEID_USER'),
             password=os.getenv('HEID_PWD'),
         )
-
-        _, ssh_stdout, _ = self.ssh_client.exec_command(f"{command} {flags}")
-        # exit_code = ssh_stdout.channel.recv_exit_status()  # handles async exit error
+        command = f"{command} {flags}"
+        full_command = f"docker exec aiaa_server {command}" if docker else command
+        ssh_stdin, ssh_stdout, ssh_stderr = self.ssh_client.exec_command(full_command)
 
         for line in ssh_stdout:
             print(line.strip())

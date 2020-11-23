@@ -174,21 +174,20 @@ class KnowledgeBank:
         self.ecosystem.digital_twin_population.update_digital_twin_attribute(user_uuid, attributes, path)
 
     def add_model_to_aiaa_server(self, image_type: str, model: str, ip: str):
-        command = "./Prosjekter/master/knowledge_bank/put_model.sh"
+        command = "./knowledge_bank/put_model.sh"
         flags = f"-t {image_type} -n {model} -i {ip}"
-        self.run_ssh_command(command=command, flags=flags)
+        self.run_ssh_command(command=command, flags=flags, docker=True)
 
-    def run_ssh_command(self, command: str, flags: str):
+    def run_ssh_command(self, command: str, flags: str, docker: bool = False):
         self.ssh_client.connect(
             hostname="heid.idi.ntnu.no",
             username=os.getenv('HEID_USER'),
             password=os.getenv('HEID_PWD'),
         )
+        command = f"{command} {flags}"
+        full_command = f"docker exec aiaa_server {command}" if docker else command
+        ssh_stdin, ssh_stdout, ssh_stderr = self.ssh_client.exec_command(full_command)
 
-        ssh_stdin, ssh_stdout, ssh_stderr = self.ssh_client.exec_command(f"{command} {flags}")
-        # exit_code = ssh_stdout.channel.recv_exit_status()  # handles async exit error
-
-        print(ssh_stdin)
         for line in ssh_stdout:
             print(line.strip())
 
