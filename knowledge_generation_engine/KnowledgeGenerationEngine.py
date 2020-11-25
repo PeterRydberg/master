@@ -4,16 +4,15 @@ import os
 import shutil
 import json
 import uuid
-import paramiko
 import tempfile
 
 from collections import defaultdict
 from datetime import datetime
 from typing import Dict, List
-from paramiko.client import SSHClient
 from tqdm.std import tqdm
 from scp import SCPClient
 
+from SSHClient import SSHClient
 from DefaultSegmentationModels import DefaultSegmentationModels
 from digital_twin.DigitalTwin import DigitalTwin
 from digital_twin.DicomImages import Image
@@ -23,9 +22,6 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from Ecosystem import Ecosystem
 
-from dotenv import load_dotenv
-load_dotenv()
-
 
 VIRTUAL_REGISTERS = 'knowledge_generation_engine\\virtual_registers'
 DICOM_TYPES = ['braintumour', 'heart', 'hippocampus', 'prostate']
@@ -34,8 +30,7 @@ DICOM_TYPES = ['braintumour', 'heart', 'hippocampus', 'prostate']
 class KnowledgeGenerationEngine:
     def __init__(self, ecosystem) -> None:
         self.ecosystem: Ecosystem = ecosystem
-        self.ssh_client: SSHClient = paramiko.SSHClient()
-        self.ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        self.ssh_client: SSHClient = SSHClient()
 
     def update_virtual_register(self, image_type: str):
         virtual_register_dir_path = f'{VIRTUAL_REGISTERS}\\{image_type}'
@@ -180,7 +175,7 @@ class KnowledgeGenerationEngine:
     def add_pretrained_model(self, image_type: str, model: str, version: str):
         command = "./knowledge_generation_engine/clara/get_pretrained_model.sh"
         flags = f"-t {image_type} -n {model} -v {version}"
-        self.run_ssh_command(command=command, flags=flags, docker=True)
+        self.ssh_client.run_ssh_command(command=command, flags=flags, docker=True)
 
     def train_virtual_register_batch(
         self,
@@ -211,7 +206,7 @@ class KnowledgeGenerationEngine:
         # Start training command
         command = "./knowledge_generation_engine/clara/train_model.sh"
         flags = f"-t {image_type} -n {model_str} -f {train_file}"
-        self.run_ssh_command(command=command, flags=flags, docker=True)
+        self.ssh_client.run_ssh_command(command=command, flags=flags, docker=True)
 
         if(update_batch):
             self.set_new_register_batch(virtual_register_path=virtual_register_path)
@@ -278,31 +273,11 @@ class KnowledgeGenerationEngine:
             shutil.move(environment_file.name, f'{dirpath}\\environment.json')
 
             remote_path = f'~/Prosjekter/master/knowledge_generation_engine/clara/{image_type}/{model}'
-            self.ssh_client.connect(
-                hostname="heid.idi.ntnu.no",
-                username=os.getenv('HEID_USER'),
-                password=os.getenv('HEID_PWD'),
-            )
-            scp = SCPClient(self.ssh_client.get_transport())
 
+            scp = SCPClient(self.ssh_client.get_paramiko_transport())
             scp.put(f'{dirpath}\\data', recursive=True, remote_path=remote_path)
             scp.put(f'{dirpath}\\environment.json', remote_path=f'{remote_path}/config')
             scp.close()
-
-    def run_ssh_command(self, command: str, flags: str = "", docker: bool = False):
-        self.ssh_client.connect(
-            hostname="heid.idi.ntnu.no",
-            username=os.getenv('HEID_USER'),
-            password=os.getenv('HEID_PWD'),
-        )
-        command = f"{command} {flags}"
-        full_command = f"docker exec aiaa_server {command}" if docker else command
-        ssh_stdin, ssh_stdout, ssh_stderr = self.ssh_client.exec_command(full_command)
-
-        for line in ssh_stdout:
-            print(line.strip())
-
-        self.ssh_client.close()
 
 # Example: register.json
 # DICOM images point to data sources

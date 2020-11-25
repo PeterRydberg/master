@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 import os
-import paramiko
 
 from datetime import datetime
 from typing import Dict, List, Union
-from paramiko.client import SSHClient
 from py_client import client_api
 from tqdm.std import tqdm
 
+from SSHClient import SSHClient
 from DefaultSegmentationModels import DefaultSegmentationModels
 from digital_twin.DicomImages import Image
 from digital_twin.DigitalTwin import DigitalTwin
@@ -29,8 +28,7 @@ class KnowledgeBank:
     def __init__(self, ecosystem) -> None:
         self.ecosystem: Ecosystem = ecosystem
         self.aiaa_client = client_api.AIAAClient(server_url=AIAA_SERVER)
-        self.ssh_client: SSHClient = paramiko.SSHClient()
-        self.ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        self.ssh_client: SSHClient = SSHClient()
         self.last_scan_timestamp: int = 0
         self.models = {}
 
@@ -158,19 +156,4 @@ class KnowledgeBank:
     def add_model_to_aiaa_server(self, image_type: str, model: str, ip: str):
         command = "./knowledge_bank/put_model.sh"
         flags = f"-t {image_type} -n {model} -i {ip}"
-        self.run_ssh_command(command=command, flags=flags, docker=True)
-
-    def run_ssh_command(self, command: str, flags: str = "", docker: bool = False):
-        self.ssh_client.connect(
-            hostname="heid.idi.ntnu.no",
-            username=os.getenv('HEID_USER'),
-            password=os.getenv('HEID_PWD'),
-        )
-        command = f"{command} {flags}"
-        full_command = f"docker exec aiaa_server {command}" if docker else command
-        ssh_stdin, ssh_stdout, ssh_stderr = self.ssh_client.exec_command(full_command)
-
-        for line in ssh_stdout:
-            print(line.strip())
-
-        self.ssh_client.close()
+        self.ssh_client.run_ssh_command(command=command, flags=flags, docker=True)
