@@ -209,7 +209,7 @@ class KnowledgeGenerationEngine:
 
         # Start training command
         command = "./knowledge_generation_engine/clara/train_model.sh"
-        flags = f"-t {image_type} -n {model} -f {train_file}"
+        flags = f"-t {image_type} -n {model_str} -f {train_file}"
         self.run_ssh_command(command=command, flags=flags, docker=True)
 
         # TODO: Finish cycle by setting new virtual batch
