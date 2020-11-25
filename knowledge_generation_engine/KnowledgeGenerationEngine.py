@@ -234,6 +234,8 @@ class KnowledgeGenerationEngine:
         # TODO: Split into validation sets.
         with tempfile.TemporaryDirectory(dir="C:\\Users\\peter\\Prosjekter\\master") as dirpath:
             os.makedirs(os.path.dirname(f'{dirpath}\\data\\train\\'), exist_ok=True)
+
+            # Create dataset folder
             for image in batch:
                 image_path = shutil.copy(
                     batch[image]["image_path"],
@@ -250,33 +252,24 @@ class KnowledgeGenerationEngine:
                     "label": f'train/{label_file}'
                 })
 
-            datalist_file = tempfile.NamedTemporaryFile(
-                mode="w+",
-                prefix="datalist",
-                suffix=".json",
-                encoding='utf8',
-                delete=False
-            )
+            # Create datalist config file
+            datalist_file = open(f'{dirpath}\\dataset_0.json', "w+")
             json.dump(datalist, datalist_file, indent=4)
             datalist_file.close()
-            shutil.move(datalist_file.name, f'{dirpath}\\data\\datalist.json')
 
-            environment_file = tempfile.NamedTemporaryFile(
-                mode="w+",
-                prefix="environment",
-                suffix=".json",
-                encoding='utf8',
-                delete=False
-            )
+            # Create environment config file
+            environment_file = open(f'{dirpath}\\environment.json', "w+")
             json.dump(environment, environment_file, indent=4)
             environment_file.close()
-            shutil.move(environment_file.name, f'{dirpath}\\environment.json')
 
+            # Send files to remote server
             remote_path = f'~/Prosjekter/master/knowledge_generation_engine/clara/{image_type}/{model}'
-
             scp = SCPClient(self.ssh_client.get_paramiko_transport())
             scp.put(f'{dirpath}\\data', recursive=True, remote_path=remote_path)
-            scp.put(f'{dirpath}\\environment.json', remote_path=f'{remote_path}/config')
+            scp.put(
+                [f'{dirpath}\\dataset_0.json', f'{dirpath}\\environment.json'],
+                remote_path=f'{remote_path}/config'
+            )
             scp.close()
 
 # Example: register.json
