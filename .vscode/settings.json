@@ -1,7 +1,8 @@
 {
-    "python.analysis.extraPaths": [
-        "./digital_twin",
-        "./knowledge_base",
-        "./knowledge_generation_engine"
-    ]
+  "python.analysis.extraPaths": [
+    "./digital_twin",
+    "./knowledge_base",
+    "./knowledge_generation_engine"
+  ],
+  "editor.defaultFormatter": "ms-python.python"
 }
