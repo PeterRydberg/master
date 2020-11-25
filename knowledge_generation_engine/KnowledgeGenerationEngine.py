@@ -213,7 +213,6 @@ class KnowledgeGenerationEngine:
         self.run_ssh_command(command=command, flags=flags, docker=True)
 
         # TODO: Finish cycle by setting new virtual batch
-        # self.export_to_knowledge_base(model=model_str)  # Export trained model
         # self.set_new_register_batch(virtual_register_path=virtual_register_path)
 
     def prepare_training_data_remote(
@@ -288,12 +287,6 @@ class KnowledgeGenerationEngine:
             scp.put(f'{dirpath}\\data', recursive=True, remote_path=remote_path)
             scp.put(f'{dirpath}\\environment.json', remote_path=f'{remote_path}/config')
             scp.close()
-
-    def export_to_knowledge_base(self, model):
-        # TODO: Make this work by running a batch script instead
-        # (export.sh)
-        # self.knowledge_bank.update_model(self.dicom_type, model)
-        pass
 
     def run_ssh_command(self, command: str, flags: str = "", docker: bool = False):
         self.ssh_client.connect(
