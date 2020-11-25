@@ -5,13 +5,16 @@ import shutil
 import json
 import uuid
 import paramiko
+import tempfile
 
 from collections import defaultdict
 from datetime import datetime
 from typing import Dict, List
 from paramiko.client import SSHClient
 from tqdm.std import tqdm
+from scp import SCPClient
 
+from DefaultSegmentationModels import DefaultSegmentationModels
 from digital_twin.DigitalTwin import DigitalTwin
 from digital_twin.DicomImages import Image
 
@@ -179,17 +182,112 @@ class KnowledgeGenerationEngine:
         flags = f"-t {image_type} -n {model} -v {version}"
         self.run_ssh_command(command=command, flags=flags, docker=True)
 
-    def train_virtual_register_batch(self, batch, virtual_register_path: str):
-        # TODO: Make this work by running a batch script instead
-        # (train.sh and train_finetune.sh)
-        model = None  # Get latest trained model
+    def train_virtual_register_batch(
+        self,
+        image_type: str,
+        task_type: str,
+        model: str = None,
+        batch: str = None,
+        finetune: bool = False,
+        gpu: str = ""  # "_2gpu OR _4gpu"
+    ):
+        virtual_register_path = f'{VIRTUAL_REGISTERS}\\{image_type}\\register.json'
+        with open(virtual_register_path, 'r') as file:
+            register = json.load(file)
 
-        for image in batch:
-            # Train model in Clara Train
-            pass
+        model_str = DefaultSegmentationModels[image_type.upper()].value[task_type] if model is None else model
+        batch_no = register["nextBatch"] if batch is None else batch
+        train_file = f"train{gpu.lower()}_finetune.sh" if finetune else f"train{gpu.lower()}.sh"
 
-        self.export_to_knowledge_base(model=model)  # Export trained model
-        self.set_new_register_batch(virtual_register_path)
+        # Physically moves registry batch to remote server for training
+        self.prepare_training_data_remote(
+            image_type,
+            task_type,
+            model_str,
+            register[batch_no]["dicom_images"]
+        )
+
+        # Start training command
+        command = "./knowledge_generation_engine/clara/train_model.sh"
+        flags = f"-t {image_type} -n {model} -f {train_file}"
+        self.run_ssh_command(command=command, flags=flags, docker=True)
+
+        # TODO: Finish cycle by setting new virtual batch
+        # self.export_to_knowledge_base(model=model_str)  # Export trained model
+        # self.set_new_register_batch(virtual_register_path=virtual_register_path)
+
+    def prepare_training_data_remote(
+        self,
+        image_type: str,
+        task_type: str,
+        model: str,
+        batch: Dict
+    ):
+        datalist = {
+            "training": [],
+            "validation": []
+        }
+        environment = {
+            "DATA_ROOT": f"/master/knowledge_generation_engine/clara/{image_type}/{model}/data",
+            "DATASET_JSON": f"/master/knowledge_generation_engine/clara/{image_type}/{model}/data/datalist.json",
+            "PROCESSING_TASK": task_type,
+            "MMAR_CKPT_DIR": "models",
+            "MMAR_EVAL_OUTPUT_PATH": "eval",
+            "PRETRAIN_WEIGHTS_FILE": "/var/tmp/resnet50_weights_tf_dim_ordering_tf_kernels.h5"
+        }
+
+        # TODO: Split into validation sets.
+        with tempfile.TemporaryDirectory(dir="C:\\Users\\peter\\Prosjekter\\master") as dirpath:
+            os.makedirs(os.path.dirname(f'{dirpath}\\data\\train\\'), exist_ok=True)
+            for image in batch:
+                image_path = shutil.copy(
+                    batch[image]["image_path"],
+                    f'{dirpath}\\data\\train'
+                )
+                label_path = shutil.copy(
+                    batch[image][f"{task_type}_path"],
+                    f'{dirpath}\\data\\train'
+                )
+                image_file = image_path.split('\\')[-1]
+                label_file = label_path.split('\\')[-1]
+                datalist["training"].append({
+                    "image": f'train/{image_file}',
+                    "label": f'train/{label_file}'
+                })
+
+            datalist_file = tempfile.NamedTemporaryFile(
+                mode="w+",
+                prefix="datalist",
+                suffix=".json",
+                encoding='utf8',
+                delete=False
+            )
+            json.dump(datalist, datalist_file, indent=4)
+            datalist_file.close()
+            shutil.move(datalist_file.name, f'{dirpath}\\data\\datalist.json')
+
+            environment_file = tempfile.NamedTemporaryFile(
+                mode="w+",
+                prefix="environment",
+                suffix=".json",
+                encoding='utf8',
+                delete=False
+            )
+            json.dump(environment, environment_file, indent=4)
+            environment_file.close()
+            shutil.move(environment_file.name, f'{dirpath}\\environment.json')
+
+            remote_path = f'~/Prosjekter/master/knowledge_generation_engine/clara/{image_type}/{model}'
+            self.ssh_client.connect(
+                hostname="heid.idi.ntnu.no",
+                username=os.getenv('HEID_USER'),
+                password=os.getenv('HEID_PWD'),
+            )
+            scp = SCPClient(self.ssh_client.get_transport())
+
+            scp.put(f'{dirpath}\\data', recursive=True, remote_path=remote_path)
+            scp.put(f'{dirpath}\\environment.json', remote_path=f'{remote_path}/config')
+            scp.close()
 
     def export_to_knowledge_base(self, model):
         # TODO: Make this work by running a batch script instead
@@ -197,7 +295,7 @@ class KnowledgeGenerationEngine:
         # self.knowledge_bank.update_model(self.dicom_type, model)
         pass
 
-    def run_ssh_command(self, command: str, flags: str, docker: bool = False):
+    def run_ssh_command(self, command: str, flags: str = "", docker: bool = False):
         self.ssh_client.connect(
             hostname="heid.idi.ntnu.no",
             username=os.getenv('HEID_USER'),
