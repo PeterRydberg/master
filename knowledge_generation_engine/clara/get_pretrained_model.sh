@@ -8,10 +8,8 @@ while getopts t:n:v: flag; do
     esac
 done
 
-echo "\nGetting new model $MODEL_NAME and setting it to the knowledge generation engine"
-
+printf "\n--- Getting new model $MODEL_NAME and setting it to the knowledge generation engine ---\n"
 mkdir -p /master/knowledge_generation_engine/clara/$MODEL_TYPE
 ngc registry model download-version nvidia/med/$MODEL_NAME:$VERSION --dest /master/knowledge_generation_engine/clara/$MODEL_TYPE
 
-echo "Exporting the frozen model to knowledge bank\n"
 ./knowledge_generation_engine/clara/export_model.sh -t $MODEL_TYPE -n $MODEL_NAME\_v$VERSION
