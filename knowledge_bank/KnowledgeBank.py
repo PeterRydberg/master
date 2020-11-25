@@ -4,12 +4,12 @@ import os
 import paramiko
 
 from datetime import datetime
-from enum import Enum
 from typing import Dict, List, Union
 from paramiko.client import SSHClient
 from py_client import client_api
 from tqdm.std import tqdm
 
+from DefaultSegmentationModels import DefaultSegmentationModels
 from digital_twin.DicomImages import Image
 from digital_twin.DigitalTwin import DigitalTwin
 
@@ -23,24 +23,6 @@ load_dotenv()
 
 DATA_SOURCES = os.getenv('DATA_SOURCE_PATH')
 AIAA_SERVER = os.getenv('AIAA_SERVER')
-
-
-class DefaultSegmentationModels(Enum):
-    BRAINTUMOUR = {
-        "segmentation": "clara_mri_seg_brain_tumors_br16_full_amp"
-    }
-    HEART = {
-        "segmentation": ""
-    }
-    HIPPOCAMPUS = {
-        "segmentation": ""
-    }
-    SPLEEN = {
-        "segmentation": "clara_ct_seg_spleen_amp"
-    }
-    PROSTATE = {
-        "segmentation": "clara_train_mri_prostate_cg_and_pz_automl_v1"
-    }
 
 
 class KnowledgeBank:
@@ -178,7 +160,7 @@ class KnowledgeBank:
         flags = f"-t {image_type} -n {model} -i {ip}"
         self.run_ssh_command(command=command, flags=flags, docker=True)
 
-    def run_ssh_command(self, command: str, flags: str, docker: bool = False):
+    def run_ssh_command(self, command: str, flags: str = "", docker: bool = False):
         self.ssh_client.connect(
             hostname="heid.idi.ntnu.no",
             username=os.getenv('HEID_USER'),
