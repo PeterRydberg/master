@@ -189,7 +189,8 @@ class KnowledgeGenerationEngine:
         model: str = None,
         batch: str = None,
         finetune: bool = False,
-        gpu: str = ""  # "_2gpu OR _4gpu"
+        gpu: str = "",  # "_2gpu OR _4gpu"
+        update_batch: bool = True
     ):
         virtual_register_path = f'{VIRTUAL_REGISTERS}\\{image_type}\\register.json'
         with open(virtual_register_path, 'r') as file:
@@ -212,8 +213,8 @@ class KnowledgeGenerationEngine:
         flags = f"-t {image_type} -n {model_str} -f {train_file}"
         self.run_ssh_command(command=command, flags=flags, docker=True)
 
-        # TODO: Finish cycle by setting new virtual batch
-        # self.set_new_register_batch(virtual_register_path=virtual_register_path)
+        if(update_batch):
+            self.set_new_register_batch(virtual_register_path=virtual_register_path)
 
     def prepare_training_data_remote(
         self,

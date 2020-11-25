@@ -15,5 +15,6 @@ if __name__ == "__main__":
         model=None,
         batch=None,
         finetune=True,
-        gpu=""
+        gpu="",
+        update_batch=False
     )
