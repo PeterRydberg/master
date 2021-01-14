@@ -1,6 +1,6 @@
-from digital_twin.DigitalTwinPopulation import DigitalTwinPopulation
-from knowledge_generation_engine.KnowledgeGenerationEngine import KnowledgeGenerationEngine
-from knowledge_bank.KnowledgeBank import KnowledgeBank
+from components.digital_twin.DigitalTwinPopulation import DigitalTwinPopulation
+from components.knowledge_generation_engine.KnowledgeGenerationEngine import KnowledgeGenerationEngine
+from components.knowledge_bank.KnowledgeBank import KnowledgeBank
 
 
 class Ecosystem:

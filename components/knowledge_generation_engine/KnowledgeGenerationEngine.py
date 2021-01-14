@@ -14,16 +14,16 @@ from scp import SCPClient
 
 from SSHClient import SSHClient
 from DefaultSegmentationModels import DefaultSegmentationModels
-from digital_twin.DigitalTwin import DigitalTwin
-from digital_twin.DicomImages import Image
+from components.digital_twin.DigitalTwin import DigitalTwin
+from components.digital_twin.DicomImages import Image
 
 # In order to use IDE type checking, import is not actually used
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from Ecosystem import Ecosystem
+    from components.Ecosystem import Ecosystem
 
 
-VIRTUAL_REGISTERS = 'knowledge_generation_engine\\virtual_registers'
+VIRTUAL_REGISTERS = 'components\\knowledge_generation_engine\\virtual_registers'
 DICOM_TYPES = ['braintumour', 'heart', 'hippocampus', 'prostate']
 
 
@@ -173,7 +173,7 @@ class KnowledgeGenerationEngine:
         return register
 
     def add_pretrained_model(self, image_type: str, model: str, version: str):
-        command = "./knowledge_generation_engine/clara/get_pretrained_model.sh"
+        command = "./components/knowledge_generation_engine/clara/get_pretrained_model.sh"
         flags = f"-t {image_type} -n {model} -v {version}"
         self.ssh_client.run_ssh_command(command=command, flags=flags, docker=True)
 
@@ -204,7 +204,7 @@ class KnowledgeGenerationEngine:
         )
 
         # Start training command
-        command = "./knowledge_generation_engine/clara/train_model.sh"
+        command = "./components/knowledge_generation_engine/clara/train_model.sh"
         flags = f"-t {image_type} -n {model_str} -f {train_file}"
         self.ssh_client.run_ssh_command(command=command, flags=flags, docker=True)
 
@@ -223,8 +223,8 @@ class KnowledgeGenerationEngine:
             "validation": []
         }
         environment = {
-            "DATA_ROOT": f"/master/knowledge_generation_engine/clara/{image_type}/{model}/data",
-            "DATASET_JSON": f"/master/knowledge_generation_engine/clara/{image_type}/{model}/data/datalist.json",
+            "DATA_ROOT": f"/master/components/knowledge_generation_engine/clara/{image_type}/{model}/data",
+            "DATASET_JSON": f"/master/components/knowledge_generation_engine/clara/{image_type}/{model}/data/datalist.json",
             "PROCESSING_TASK": task_type,
             "MMAR_CKPT_DIR": "models",
             "MMAR_EVAL_OUTPUT_PATH": "eval",
@@ -263,7 +263,7 @@ class KnowledgeGenerationEngine:
             environment_file.close()
 
             # Send files to remote server
-            remote_path = f'~/Prosjekter/master/knowledge_generation_engine/clara/{image_type}/{model}'
+            remote_path = f'~/Prosjekter/master/components/knowledge_generation_engine/clara/{image_type}/{model}'
             scp = SCPClient(self.ssh_client.get_paramiko_transport())
             scp.put(f'{dirpath}\\data', recursive=True, remote_path=remote_path)
             scp.put(

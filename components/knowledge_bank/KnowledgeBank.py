@@ -9,13 +9,13 @@ from tqdm.std import tqdm
 
 from SSHClient import SSHClient
 from DefaultSegmentationModels import DefaultSegmentationModels
-from digital_twin.DicomImages import Image
-from digital_twin.DigitalTwin import DigitalTwin
+from components.digital_twin.DicomImages import Image
+from components.digital_twin.DigitalTwin import DigitalTwin
 
 # In order to use IDE type checking, import is not actually used
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from Ecosystem import Ecosystem
+    from components.Ecosystem import Ecosystem
 
 from dotenv import load_dotenv
 load_dotenv()

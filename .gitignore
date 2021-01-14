@@ -422,11 +422,11 @@ sketch
 
 # End of https://www.toptal.com/developers/gitignore/api/react,node
 
-knowledge_generation_engine/external_registers
-knowledge_generation_engine/external_registries
-knowledge_generation_engine/virtual_registers/**/*.nii.gz
-knowledge_generation_engine/virtual_registers/**/register.json
-knowledge_generation_engine/clara/**/models
-knowledge_bank/aiaa
+components/knowledge_generation_engine/external_registers
+components/knowledge_generation_engine/external_registries
+components/knowledge_generation_engine/virtual_registers/**/*.nii.gz
+components/knowledge_generation_engine/virtual_registers/**/register.json
+components/knowledge_generation_engine/clara/**/models
+components/knowledge_bank/aiaa
 data_sources
 ip.txt
