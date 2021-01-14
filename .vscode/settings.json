@@ -4,5 +4,6 @@
     "./knowledge_base",
     "./knowledge_generation_engine"
   ],
-  "editor.defaultFormatter": "ms-python.python"
+  "editor.defaultFormatter": "ms-python.python",
+  "python.pythonPath": ".venv\\Scripts\\python.exe"
 }
