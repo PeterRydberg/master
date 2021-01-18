@@ -9,8 +9,8 @@ while getopts t:n:v: flag; do
 done
 
 printf "\n--- Getting new model $MODEL_NAME and setting it to the knowledge generation engine ---\n"
-mkdir -p /master/knowledge_generation_engine/clara/$MODEL_TYPE
-ngc registry model download-version nvidia/med/$MODEL_NAME:$VERSION --dest /master/knowledge_generation_engine/clara/$MODEL_TYPE
-chmod 700 -R /master/knowledge_generation_engine/clara/$MODEL_TYPE
+mkdir -p /master/components/knowledge_generation_engine/clara/$MODEL_TYPE
+ngc registry model download-version nvidia/med/$MODEL_NAME:$VERSION --dest /master/components/knowledge_generation_engine/clara/$MODEL_TYPE
+chmod 700 -R /master/components/knowledge_generation_engine/clara/$MODEL_TYPE
 
-./knowledge_generation_engine/clara/export_model.sh -t $MODEL_TYPE -n $MODEL_NAME\_v$VERSION
+./components/knowledge_generation_engine/clara/export_model.sh -t $MODEL_TYPE -n $MODEL_NAME\_v$VERSION
