@@ -183,7 +183,7 @@ class KnowledgeGenerationEngine:
         task_type: str,
         model: str = None,
         model_ver: int = None,
-        batch: str = None,
+        batch_id: str = None,
         finetune: bool = False,
         gpu: str = "",  # "_2gpu OR _4gpu"
         update_batch: bool = True,
@@ -195,11 +195,11 @@ class KnowledgeGenerationEngine:
 
         model_str = DefaultSegmentationModels[image_type.upper()].value[task_type] if model is None else model
         model_str += "_v1" if model_ver is None else f"_v{model_ver}"
-        batch_no = register["nextBatch"] if batch is None else batch
+        batch_no = register["nextBatch"] if batch_id is None else batch_id
         train_file = f"train{gpu.lower()}_finetune.sh" if finetune else f"train{gpu.lower()}.sh"
 
         # Physically moves registry batch to remote server for training
-        self.prepare_training_data_remote(
+        self.prepare_batch_training_data_remote(
             image_type,
             task_type,
             model_str,
@@ -215,7 +215,7 @@ class KnowledgeGenerationEngine:
         if(update_batch):
             self.set_new_register_batch(virtual_register_path=virtual_register_path)
 
-    def prepare_training_data_remote(
+    def prepare_batch_training_data_remote(
         self,
         image_type: str,
         task_type: str,
@@ -223,14 +223,14 @@ class KnowledgeGenerationEngine:
         batch: Dict,
         validation_split: float
     ):
-        datapath = f"/master/components/knowledge_generation_engine/clara/{image_type}/{model}/data"
+        datapath = f"/master/components/knowledge_generation_engine/clara/models/{image_type}/{model}/data"
         datalist = {
             "training": [],
             "validation": []
         }
         environment = {
             "DATA_ROOT": f"{datapath}",
-            "DATASET_JSON": f"{datapath}/datalist.json",
+            "DATASET_JSON": f"{datapath}/dataset_0.json",
             "PROCESSING_TASK": task_type,
             "MMAR_CKPT_DIR": "models",
             "MMAR_EVAL_OUTPUT_PATH": "eval",
@@ -270,7 +270,7 @@ class KnowledgeGenerationEngine:
             environment_file.close()
 
             # Send files to remote server
-            remote_path = f'~/Prosjekter/master/components/knowledge_generation_engine/clara/{image_type}/{model}'
+            remote_path = f'~/Prosjekter/master/components/knowledge_generation_engine/clara/models/{image_type}/{model}'
             scp = SCPClient(self.ssh_client.get_paramiko_transport())
             scp.put(f'{dirpath}\\data', recursive=True, remote_path=remote_path)
             scp.put(

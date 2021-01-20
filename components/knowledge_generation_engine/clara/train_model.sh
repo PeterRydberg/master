@@ -9,8 +9,8 @@ while getopts t:n:f: flag; do
 done
 
 printf "\n--- Training on model $MODEL_NAME using traing command $BASH_FILE ---\n"
-./components/knowledge_generation_engine/clara/$MODEL_TYPE\/$MODEL_NAME\/commands\/$BASH_FILE
+./components/knowledge_generation_engine/clara/models/$MODEL_TYPE\/$MODEL_NAME\/commands\/$BASH_FILE
 
 printf "\n--- Exporting models to frozen versions ---\n"
-./components/knowledge_generation_engine/clara/$MODEL_TYPE\/$MODEL_NAME\/commands/export.sh
+./components/knowledge_generation_engine/clara/models/$MODEL_TYPE\/$MODEL_NAME\/commands/export.sh
 ./components/knowledge_generation_engine/clara/export_model.sh -t $MODEL_TYPE -n "$MODEL_NAME\\_$VERSION"
