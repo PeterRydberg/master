@@ -1,0 +1,243 @@
+{
+    "epochs": 1,
+    "num_training_epoch_per_valid": 20,
+    "learning_rate": 1e-4,
+    "lr_search" : [1e-4, 2e-3],
+    "use_amp": false,
+    "determinism": {
+      "python_seed": "20200221",
+      "random_seed": 123456,
+      "numpy_seed": 654321,
+      "tf_seed": 11111
+    },
+    "dynamic_input_shape": false,
+    "train":
+    {
+        "loss":
+        {
+            "name": "Dice"
+        },
+
+        "optimizer":
+        {
+            "name": "NovoGrad"
+        },
+
+        "lr_policy":
+        {
+            "name": "DecayOnStep",
+            "args": {
+                "decay_ratio": 0.1,
+                "decay_freq": 50000
+            }
+        },
+
+        "model": {
+          "name": "SegResnet",
+          "args": {
+            "num_classes": 3,
+            "use_vae": false,
+            "blocks_down": "1,1,1,1",
+            "blocks_up": "1,1,1",
+            "init_filters": 16,
+            "use_group_norm": true,
+            "use_group_normG": 8,
+            "reg_weight": 1e-5,
+            "dropout_prob": 0.2,
+            "final_activation": "softmax"
+          },
+          "search": [
+            {
+              "type": "enum",
+              "args": ["blocks_down", "blocks_up"],
+              "targets": [["1,1,1,1", "1,1,1"],["1,2,2,4", "1,1,1"],["2,2,2,3","2,2,2"],["1,2,4","1,1"]],
+              "domain": "net"
+            },
+            {
+              "type": "enum",
+              "args": ["init_filters"],
+              "targets": [[16],[8]],
+              "domain": "net"
+            }
+          ]
+        },
+
+        "pre_transforms":
+        [
+            {
+                "name": "LoadNifti",
+                "args": {
+                    "fields": [
+                        "image",
+                        "label"
+                    ]
+                }
+            },
+            {
+                "name": "ConvertToChannelsFirst",
+                "args": {
+                    "fields": [
+                        "image",
+                        "label"
+                    ]
+                }
+            },
+            {
+                "name": "ScaleIntensityRange",
+                "args": {
+                    "fields": "image",
+                    "a_min": 0,
+                    "a_max": 2048,
+                    "b_min": 0.0,
+                    "b_max": 1.0,
+                    "clip": true
+                }
+            },
+            {
+              "name": "FastCropByPosNegRatio",
+              "args": {
+                "size": [96, 96, 32],
+                "fields": "image",
+                "label_field": "label",
+                "pos": 1,
+                "neg": 1,
+                "batch_size": 4,
+                "batches_to_gen_at_once": 300
+              }
+            },
+            {
+              "name": "RandomAxisFlip",
+              "args": {
+                "fields": ["image", "label"],
+                "probability": 0.5
+              },
+              "search": [
+                {
+                  "type": "float",
+                  "args": ["probability"],
+                  "targets": [0, 1],
+                  "domain": "transform"
+                }
+              ]
+            },
+            {
+              "name": "RandomRotate3D",
+              "args": {
+                "fields": ["image", "label"],
+                "probability": 1.0
+              },
+              "search": [
+                {
+                  "type": "float",
+                  "args": ["probability"],
+                  "targets": [0, 1],
+                  "domain": "transform"
+                }
+              ]
+            },
+            {
+              "name": "ScaleIntensityOscillation",
+              "args": {
+                "fields": "image",
+                "magnitude": 0.1
+              },
+              "search": [
+                {
+                  "type": "float",
+                  "args": ["magnitude"],
+                  "targets": [0, 1],
+                  "domain": "transform"
+                }
+              ]
+            }
+        ],
+
+        "image_pipeline": {
+          "name": "SegmentationImagePipeline",
+          "args": {
+            "data_list_file_path": "{DATASET_JSON}",
+            "data_file_base_dir": "{DATA_ROOT}",
+            "data_list_key": "training",
+            "output_crop_size": [96, 96, 32],
+            "output_batch_size": 4,
+            "batched_by_transforms": true,
+            "output_image_channels": 2,
+            "num_workers": 8,
+            "prefetch_size": 10
+          }
+        }
+    },
+
+    "validate":
+    {
+        "metrics":
+        [
+            {
+                "name": "ComputeAverageDice",
+                "args": {
+                    "name": "mean_dice",
+                    "is_key_metric": true,
+                    "field": "model",
+                    "label_field": "label",
+                    "report_path": "{MMAR_EVAL_OUTPUT_PATH}"
+                }
+            }
+        ],
+
+        "pre_transforms":
+        [
+            {
+                "name": "LoadNifti",
+                "args": {
+                    "fields": [
+                        "image",
+                        "label"
+                    ]
+                }
+            },
+            {
+                "name": "ConvertToChannelsFirst",
+                "args": {
+                    "fields": [
+                        "image",
+                        "label"
+                    ]
+                }
+            },
+            {
+                "name": "ScaleIntensityRange",
+                "args": {
+                    "fields": "image",
+                    "a_min": 0,
+                    "a_max": 2048,
+                    "b_min": 0.0,
+                    "b_max": 1.0,
+                    "clip": true
+                }
+            }
+        ],
+
+        "image_pipeline": {
+          "name": "SegmentationImagePipeline",
+          "args": {
+            "data_list_file_path": "{DATASET_JSON}",
+            "data_file_base_dir": "{DATA_ROOT}",
+            "data_list_key": "validation",
+            "output_crop_size": [96, 96, 32],
+            "output_batch_size": 1,
+            "output_image_channels": 2,
+            "num_workers": 4,
+            "prefetch_size": 1
+          }
+        },
+
+
+        "inferer":
+        {
+            "name": "TFScanWindowInferer",
+            "args": {
+              "roi_size": [96, 96, 32]
+            }
+        }
+    }
+}

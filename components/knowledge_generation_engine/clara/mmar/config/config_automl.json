@@ -1,0 +1,28 @@
+{
+  "handlers": [
+    {
+      "name": "MMARHandler",
+      "args": {
+        "num_mmars_to_keep": 3,
+        "stop_threshold": 0.65
+      }
+    },
+    {
+      "name": "StatsHandler"
+    },
+    {
+      "name": "MMARStatsHandler"
+    }
+  ],
+
+  "executor": {
+    "name": "MMARExecutor"
+  },
+
+  "controller": {
+    "name": "ReinforcementController",
+    "args": {
+    }
+  }
+
+}
