@@ -182,16 +182,19 @@ class KnowledgeGenerationEngine:
         image_type: str,
         task_type: str,
         model: str = None,
+        model_ver: int = None,
         batch: str = None,
         finetune: bool = False,
         gpu: str = "",  # "_2gpu OR _4gpu"
-        update_batch: bool = True
+        update_batch: bool = True,
+        validation_split: float = 0.3
     ):
         virtual_register_path = f'{VIRTUAL_REGISTERS}\\{image_type}\\register.json'
         with open(virtual_register_path, 'r') as file:
             register = json.load(file)
 
         model_str = DefaultSegmentationModels[image_type.upper()].value[task_type] if model is None else model
+        model_str += "_v1" if model_ver is None else f"_v{model_ver}"
         batch_no = register["nextBatch"] if batch is None else batch
         train_file = f"train{gpu.lower()}_finetune.sh" if finetune else f"train{gpu.lower()}.sh"
 
@@ -200,7 +203,8 @@ class KnowledgeGenerationEngine:
             image_type,
             task_type,
             model_str,
-            register[batch_no]["dicom_images"]
+            register[batch_no]["dicom_images"],
+            validation_split
         )
 
         # Start training command
@@ -216,40 +220,43 @@ class KnowledgeGenerationEngine:
         image_type: str,
         task_type: str,
         model: str,
-        batch: Dict
+        batch: Dict,
+        validation_split: float
     ):
+        datapath = f"/master/components/knowledge_generation_engine/clara/{image_type}/{model}/data"
         datalist = {
             "training": [],
             "validation": []
         }
         environment = {
-            "DATA_ROOT": f"/master/components/knowledge_generation_engine/clara/{image_type}/{model}/data",
-            "DATASET_JSON": f"/master/components/knowledge_generation_engine/clara/{image_type}/{model}/data/datalist.json",
+            "DATA_ROOT": f"{datapath}",
+            "DATASET_JSON": f"{datapath}/datalist.json",
             "PROCESSING_TASK": task_type,
             "MMAR_CKPT_DIR": "models",
             "MMAR_EVAL_OUTPUT_PATH": "eval",
             "PRETRAIN_WEIGHTS_FILE": "/var/tmp/resnet50_weights_tf_dim_ordering_tf_kernels.h5"
         }
 
-        # TODO: Split into validation sets.
-        with tempfile.TemporaryDirectory(dir="C:\\Users\\peter\\Prosjekter\\master") as dirpath:
+        with tempfile.TemporaryDirectory() as dirpath:
             os.makedirs(os.path.dirname(f'{dirpath}\\data\\train\\'), exist_ok=True)
+            os.makedirs(os.path.dirname(f'{dirpath}\\data\\val\\'), exist_ok=True)
 
             # Create dataset folder
-            for image in batch:
+            for i, image in enumerate(batch):
+                split = ["training", "train"] if i/len(batch) > validation_split else ["validation", "val"]
                 image_path = shutil.copy(
                     batch[image]["image_path"],
-                    f'{dirpath}\\data\\train'
+                    f'{dirpath}\\data\\{split[1]}'
                 )
                 label_path = shutil.copy(
                     batch[image][f"{task_type}_path"],
-                    f'{dirpath}\\data\\train'
+                    f'{dirpath}\\data\\{split[1]}'
                 )
                 image_file = image_path.split('\\')[-1]
                 label_file = label_path.split('\\')[-1]
-                datalist["training"].append({
-                    "image": f'train/{image_file}',
-                    "label": f'train/{label_file}'
+                datalist[f"{split[0]}"].append({
+                    "image": f'{split[1]}/{image_file}',
+                    "label": f'{split[1]}/{label_file}'
                 })
 
             # Create datalist config file
