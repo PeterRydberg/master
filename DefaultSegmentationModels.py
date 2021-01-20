@@ -15,5 +15,11 @@ class DefaultSegmentationModels(Enum):
         "segmentation": "clara_ct_seg_spleen_amp"
     }
     PROSTATE = {
-        "segmentation": "clara_train_mri_prostate_cg_and_pz_automl_v1"
+        "segmentation": "clara_train_mri_prostate_cg_and_pz_automl"
+    }
+    C19_LUNG_LESION = {
+        "segmentation": "clara_train_covid19_ct_lesion_seg"
+    }
+    C19_LUNG_SEG = {
+        "segmentation": "clara_train_covid19_ct_lung_seg"
     }
