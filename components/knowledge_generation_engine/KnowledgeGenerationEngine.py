@@ -23,7 +23,9 @@ if TYPE_CHECKING:
     from components.Ecosystem import Ecosystem
 
 
+KGE_PATH = '/master/components/knowledge_generation_engine/'
 VIRTUAL_REGISTERS = 'components\\knowledge_generation_engine\\virtual_registers'
+EXTERNAL_REGISTERS = 'components\\knowledge_generation_engine\\external_registers'
 DICOM_TYPES = ['braintumour', 'heart', 'hippocampus', 'prostate']
 
 
@@ -177,6 +179,92 @@ class KnowledgeGenerationEngine:
         flags = f"-t {image_type} -n {model} -v {version}"
         self.ssh_client.run_ssh_command(command=command, flags=flags, docker=True)
 
+    def train_external_dataset(
+            self,
+            image_type: str,
+            task_type: str,
+            model: str = "",
+            finetune: bool = False,
+            gpu: str = "",  # "_2gpu OR _4gpu"
+            validation_split: float = 0.3,
+            dataset_name: str = ""
+    ):
+        train_file = f"train{gpu.lower()}_finetune.sh" if finetune else f"train{gpu.lower()}.sh"
+
+        # Physically moves registry batch to remote server for training
+        self.prepare_MID_training_data_remote(
+            image_type,
+            task_type,
+            model,
+            validation_split,
+            dataset_name
+        )
+
+        # Start training command
+        command = "./components/knowledge_generation_engine/clara/train_model.sh"
+        flags = f"-t {image_type} -n {model} -f {train_file}"
+        self.ssh_client.run_ssh_command(command=command, flags=flags, docker=True)
+
+    def prepare_MID_training_data_remote(
+        self,
+        image_type: str,
+        task_type: str,
+        model: str = "",
+        validation_split: float = 0.3,
+        dataset_name: str = ""
+    ):
+        # Clone MMAR to new model
+        command = "./components/knowledge_generation_engine/clara/clone_mmar.sh"
+        flags = f"-t {image_type} -n {model}"
+        self.ssh_client.run_ssh_command(command=command, flags=flags, docker=True)
+
+        datapath = f"{KGE_PATH}external_registers/medical_image_decathlon/{dataset_name}"
+        datalist = {
+            "training": [],
+            "validation": [],
+            "test": []
+        }
+        environment = {
+            "DATA_ROOT": f"{datapath}",
+            "DATASET_JSON": f"{datapath}/dataset_0.json",
+            "PROCESSING_TASK": task_type,
+            "MMAR_CKPT_DIR": "models",
+            "MMAR_EVAL_OUTPUT_PATH": "eval",
+            "PRETRAIN_WEIGHTS_FILE": "/var/tmp/resnet50_weights_tf_dim_ordering_tf_kernels.h5"
+        }
+
+        with tempfile.TemporaryDirectory() as dirpath:
+            with open(f"{EXTERNAL_REGISTERS}/medical_image_decathlon/{dataset_name}/dataset.json", 'r') as file:
+                dataset = json.load(file)
+                MID_datalist = dataset["training"]
+
+                # Create dataset folder
+                for i, image in enumerate(MID_datalist):
+                    split = "training" if i/len(MID_datalist) > validation_split else "validation"
+                    datalist[f"{split}"].append({
+                        "image": f'{image["image"]}',
+                        "label": f'{image["label"]}'
+                    })
+
+            # Create datalist config file
+            datalist_file = open(f'{dirpath}\\dataset_0.json', "w+")
+            json.dump(datalist, datalist_file, indent=4)
+            datalist_file.close()
+
+            # Create environment config file
+            environment_file = open(f'{dirpath}\\environment.json', "w+")
+            json.dump(environment, environment_file, indent=4)
+            environment_file.close()
+
+            # Send configs to remote server
+            remote_path = f'~/Prosjekter{KGE_PATH}clara/models/{image_type}/{model}'
+            scp = SCPClient(self.ssh_client.get_paramiko_transport())
+            scp.put(
+                [f'{dirpath}\\dataset_0.json', f'{dirpath}\\environment.json'],
+                remote_path=f'{remote_path}/config'
+            )
+            scp.close()
+
     def train_virtual_register_batch(
         self,
         image_type: str,
@@ -223,7 +311,7 @@ class KnowledgeGenerationEngine:
         batch: Dict,
         validation_split: float
     ):
-        datapath = f"/master/components/knowledge_generation_engine/clara/models/{image_type}/{model}/data"
+        datapath = f"{KGE_PATH}clara/models/{image_type}/{model}/data"
         datalist = {
             "training": [],
             "validation": []
@@ -270,7 +358,7 @@ class KnowledgeGenerationEngine:
             environment_file.close()
 
             # Send files to remote server
-            remote_path = f'~/Prosjekter/master/components/knowledge_generation_engine/clara/models/{image_type}/{model}'
+            remote_path = f'~/Prosjekter{KGE_PATH}clara/models/{image_type}/{model}'
             scp = SCPClient(self.ssh_client.get_paramiko_transport())
             scp.put(f'{dirpath}\\data', recursive=True, remote_path=remote_path)
             scp.put(

@@ -8,7 +8,7 @@ while getopts t:n:f: flag; do
     esac
 done
 
-printf "\n--- Training on model $MODEL_NAME using traing command $BASH_FILE ---\n"
+printf "\n--- Training on model $MODEL_NAME using training command $BASH_FILE ---\n"
 ./components/knowledge_generation_engine/clara/models/$MODEL_TYPE\/$MODEL_NAME\/commands\/$BASH_FILE
 
 printf "\n--- Exporting models to frozen versions ---\n"
