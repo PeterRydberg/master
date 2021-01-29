@@ -184,6 +184,7 @@ class KnowledgeGenerationEngine:
             image_type: str,
             task_type: str,
             model: str = "",
+            use_existing_mmar: bool = False,
             finetune: bool = False,
             gpu: str = "",  # "_2gpu OR _4gpu"
             validation_split: float = 0.3,
@@ -196,6 +197,7 @@ class KnowledgeGenerationEngine:
             image_type,
             task_type,
             model,
+            use_existing_mmar,
             validation_split,
             dataset_name,
             self.ssh_client

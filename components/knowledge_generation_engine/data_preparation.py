@@ -2,6 +2,7 @@ import os
 import json
 import shutil
 import tempfile
+import random
 
 from scp import SCPClient
 from typing import Dict
@@ -17,14 +18,16 @@ def prepare_MID_training_data_remote(
     image_type: str,
     task_type: str,
     model: str = "",
+    use_existing_mmar: bool = False,
     validation_split: float = 0.3,
     dataset_name: str = "",
     ssh_client: SSHClient = SSHClient()
 ):
-    # Clone MMAR to new model
-    command = "./components/knowledge_generation_engine/clara/clone_mmar.sh"
-    flags = f"-t {image_type} -n {model}"
-    ssh_client.run_ssh_command(command=command, flags=flags, docker=True)
+    if(not use_existing_mmar):
+        # Clone MMAR to new model
+        command = "./components/knowledge_generation_engine/clara/clone_mmar.sh"
+        flags = f"-t {image_type} -n {model}"
+        ssh_client.run_ssh_command(command=command, flags=flags, docker=True)
 
     datapath = f"{KGE_PATH}external_registers/medical_image_decathlon/{dataset_name}"
     datalist = {
@@ -34,7 +37,7 @@ def prepare_MID_training_data_remote(
     }
     environment = {
         "DATA_ROOT": f"{datapath}",
-        "DATASET_JSON": f"{datapath}/dataset_0.json",
+        "DATASET_JSON": f"{KGE_PATH}clara/models/{image_type}/{model}/config/dataset_0.json",
         "PROCESSING_TASK": task_type,
         "MMAR_CKPT_DIR": "models",
         "MMAR_EVAL_OUTPUT_PATH": "eval",
@@ -46,13 +49,12 @@ def prepare_MID_training_data_remote(
             dataset = json.load(file)
             MID_datalist = dataset["training"]
 
-            # Create dataset folder
-            for i, image in enumerate(MID_datalist):
-                split = "training" if i/len(MID_datalist) > validation_split else "validation"
-                datalist[f"{split}"].append({
-                    "image": f'{image["image"]}',
-                    "label": f'{image["label"]}'
-                })
+            val_datalist = random.sample(MID_datalist, round(len(MID_datalist) * validation_split))
+            train_datalist = [x for x in MID_datalist if x not in val_datalist]
+
+            datalist["training"] = train_datalist
+            datalist["validation"] = val_datalist
+            datalist["test"] = dataset["test"]
 
         # Create datalist config file
         datalist_file = open(f'{dirpath}\\dataset_0.json', "w+")
@@ -90,7 +92,7 @@ def prepare_batch_training_data_remote(
     }
     environment = {
         "DATA_ROOT": f"{datapath}",
-        "DATASET_JSON": f"{datapath}/dataset_0.json",
+        "DATASET_JSON": f"{KGE_PATH}clara/models/{image_type}/{model}/config/dataset_0.json",
         "PROCESSING_TASK": task_type,
         "MMAR_CKPT_DIR": "models",
         "MMAR_EVAL_OUTPUT_PATH": "eval",
