@@ -1,6 +1,7 @@
 from enum import Enum
 
 
+# Fetched pretrained models are appended _v{VERSION} to their MMAR directory name
 class DefaultSegmentationModels(Enum):
     BRAINTUMOUR = {
         "segmentation": "clara_mri_seg_brain_tumors_br16_full_amp"

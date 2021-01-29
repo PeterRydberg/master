@@ -213,7 +213,6 @@ class KnowledgeGenerationEngine:
         image_type: str,
         task_type: str,
         model: str = None,
-        model_ver: int = None,
         batch_id: str = None,
         finetune: bool = False,
         gpu: str = "",  # "_2gpu OR _4gpu"
@@ -224,8 +223,7 @@ class KnowledgeGenerationEngine:
         with open(virtual_register_path, 'r') as file:
             register = json.load(file)
 
-        model_str = DefaultSegmentationModels[image_type.upper()].value[task_type] if model is None else model
-        model_str += "_v1" if model_ver is None else f"_v{model_ver}"
+        model_str = f'{DefaultSegmentationModels[image_type.upper()].value[task_type]}_v1' if model is None else model
         batch_no = register["nextBatch"] if batch_id is None else batch_id
         train_file = f"train{gpu.lower()}_finetune.sh" if finetune else f"train{gpu.lower()}.sh"
 

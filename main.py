@@ -1,23 +1,37 @@
 from components.Ecosystem import Ecosystem
 
 
-def experiment_1():
+def experiment_1_a():
     eco = Ecosystem()
 
-    # eco.knowledge_generation_engine.add_pretrained_model(
-    #     "prostate", "clara_train_mri_prostate_cg_and_pz_automl", "1")
-    # eco.knowledge_bank.add_model_to_aiaa_server("c19_lung_seg", "clara_train_covid19_ct_lung_seg", "0.0.0.0:80")
-    # eco.knowledge_generation_engine.update_virtual_register(image_type="prostate")
-    # eco.knowledge_generation_engine.train_external_dataset(
-    #     image_type="prostate",
-    #     task_type="segmentation",
-    #     model="ProstateSegmentationModel",
-    #     finetune=False,
-    #     gpu="",
-    #     validation_split=0.3,
-    #     dataset_name="Task05_Prostate"
-    # )
-    # eco.knowledge_bank.add_model_to_aiaa_server("spleen", "clara_ct_seg_spleen_amp", "0.0.0.0:80")
+    eco.knowledge_generation_engine.train_external_dataset(
+        image_type="c19_lung_seg",
+        task_type="segmentation",
+        model="LungSegmentationModel_2",
+        use_existing_mmar=True,
+        finetune=False,
+        gpu="_4gpu",
+        validation_split=0.3,
+        dataset_name="Task06_Lung"
+    )
+    # eco.knowledge_bank.add_model_to_aiaa_server("c19_lung_seg", "LungSegmentationModel_2", "0.0.0.0:80")
+
+
+def experiment_1_b():
+    eco = Ecosystem()
+
+    eco.knowledge_generation_engine.update_virtual_register(image_type="c19_lung_seg")
+    eco.knowledge_generation_engine.train_virtual_register_batch(
+        image_type="c19_lung_seg",
+        task_type="segmentation",
+        model="LungSegmentationModel_2",
+        batch_id=None,
+        finetune=True,
+        gpu="_4gpu",
+        update_batch=False,
+        validation_split=0.3
+    )
+    # eco.knowledge_bank.add_model_to_aiaa_server("c19_lung_seg", "LungSegmentationModel_2", "0.0.0.0:80")
 
 
 def experiment_2():
@@ -29,7 +43,7 @@ def experiment_3():
 
 
 if __name__ == "__main__":
-    experiment_1()
+    experiment_1_b()
 
     # eco = Ecosystem()
 

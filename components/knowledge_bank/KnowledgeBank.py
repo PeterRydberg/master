@@ -121,7 +121,7 @@ class KnowledgeBank:
 
     def get_model(self, image_type: str, task_type: str, model: str = ""):
         try:
-            use_model = model if model != "" else DefaultSegmentationModels[image_type.upper()].value[task_type]
+            use_model = model if model != "" else f'{DefaultSegmentationModels[image_type.upper()].value[task_type]}_v1'
         except KeyError:
             return None
 
