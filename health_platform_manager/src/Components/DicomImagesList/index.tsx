@@ -81,6 +81,8 @@ const dropdownOptions: string[] = [
     "braintumour",
     "hippocampus",
     "prostate",
+    "spleen",
+    "c19_lung_seg"
 ];
 
 function DicomImagesList({ uuid, dicomImages, className }: Props): JSX.Element {
