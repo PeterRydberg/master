@@ -20,18 +20,21 @@ def experiment_1_a():
 def experiment_1_b():
     eco = Ecosystem()
 
+    datapath = "/master/components/knowledge_generation_engine/external_registers/medical_image_decathlon/Task06_Lung"
+
     eco.knowledge_generation_engine.update_virtual_register(image_type="c19_lung_seg")
     eco.knowledge_generation_engine.train_virtual_register_batch(
         image_type="c19_lung_seg",
         task_type="segmentation",
-        model="LungSegmentationModel_2",
+        model="LungSegmentationModel_2_finetuned",
         batch_id=None,
         finetune=True,
-        gpu="_4gpu",
+        finetune_path=datapath,
+        gpu="_2gpu",
         update_batch=False,
         validation_split=0.3
     )
-    # eco.knowledge_bank.add_model_to_aiaa_server("c19_lung_seg", "LungSegmentationModel_2", "0.0.0.0:80")
+    # eco.knowledge_bank.add_model_to_aiaa_server("c19_lung_seg", "LungSegmentationModel_2_finetuned", "0.0.0.0:80")
 
 
 def experiment_2():

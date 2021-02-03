@@ -59,8 +59,9 @@ class KnowledgeBank:
             image_uuid: str,
             model: str = "",
             loaded_user: Union[DigitalTwin, None] = None) -> None:
-        user: Union[DigitalTwin, None] = loaded_user if loaded_user is not None else self.ecosystem.digital_twin_population.get_user_by_id(
-            user_uuid)
+        user: Union[DigitalTwin, None] = loaded_user if loaded_user is not None else (
+            self.ecosystem.digital_twin_population.get_user_by_id(user_uuid)
+        )
         if(user is None):
             return
 
@@ -156,4 +157,4 @@ class KnowledgeBank:
     def add_model_to_aiaa_server(self, image_type: str, model: str, ip: str):
         command = "./knowledge_bank/put_model.sh"
         flags = f"-t {image_type} -n {model} -i {ip}"
-        self.ssh_client.run_ssh_command(command=command, flags=flags, docker=True)
+        self.ssh_client.run_ssh_command(command=command, flags=flags, docker=True, container="aiaa_server")

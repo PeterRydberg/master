@@ -27,8 +27,9 @@ def prepare_MID_training_data_remote(
         # Clone MMAR to new model
         command = "./components/knowledge_generation_engine/clara/clone_mmar.sh"
         flags = f"-t {image_type} -n {model}"
-        ssh_client.run_ssh_command(command=command, flags=flags, docker=True)
+        ssh_client.run_ssh_command(command=command, flags=flags, docker=True, container="aiaa_training")
 
+    mmar_path = f"{KGE_PATH}clara/models/{image_type}/{model}"
     datapath = f"{KGE_PATH}external_registers/medical_image_decathlon/{dataset_name}"
     datalist = {
         "training": [],
@@ -37,7 +38,7 @@ def prepare_MID_training_data_remote(
     }
     environment = {
         "DATA_ROOT": f"{datapath}",
-        "DATASET_JSON": f"{KGE_PATH}clara/models/{image_type}/{model}/config/dataset_0.json",
+        "DATASET_JSON": f"{mmar_path}/config/dataset_0.json",
         "PROCESSING_TASK": task_type,
         "MMAR_CKPT_DIR": "models",
         "MMAR_EVAL_OUTPUT_PATH": "eval",
@@ -67,7 +68,7 @@ def prepare_MID_training_data_remote(
         environment_file.close()
 
         # Send configs to remote server
-        remote_path = f'~/Prosjekter{KGE_PATH}clara/models/{image_type}/{model}'
+        remote_path = f'~/Prosjekter{mmar_path}'
         scp = SCPClient(ssh_client.get_paramiko_transport())
         scp.put(
             [f'{dirpath}\\dataset_0.json', f'{dirpath}\\environment.json'],
@@ -80,49 +81,52 @@ def prepare_batch_training_data_remote(
     image_type: str,
     task_type: str,
     model: str,
-    batch: Dict,
+    batch: Dict[str, Dict],
+    finetune_path: str,
     validation_split: float,
     ssh_client: SSHClient = SSHClient()
-
 ):
-    datapath = f"{KGE_PATH}clara/models/{image_type}/{model}/data"
-    datalist = {
-        "training": [],
-        "validation": []
-    }
+    mmar_path = f"{KGE_PATH}clara/models/{image_type}/{model}"
+
+    remote_dataset: dict[str, list] = ssh_client.get_remote_json(f'Prosjekter{mmar_path}/config/dataset_0.json')
+    datalist = remote_dataset
     environment = {
-        "DATA_ROOT": f"{datapath}",
-        "DATASET_JSON": f"{KGE_PATH}clara/models/{image_type}/{model}/config/dataset_0.json",
+        "DATA_ROOT": finetune_path,
+        "DATASET_JSON": f"{mmar_path}/config/dataset_1.json",
         "PROCESSING_TASK": task_type,
         "MMAR_CKPT_DIR": "models",
         "MMAR_EVAL_OUTPUT_PATH": "eval",
         "PRETRAIN_WEIGHTS_FILE": "/var/tmp/resnet50_weights_tf_dim_ordering_tf_kernels.h5"
     }
 
-    with tempfile.TemporaryDirectory() as dirpath:
-        os.makedirs(os.path.dirname(f'{dirpath}\\data\\train\\'), exist_ok=True)
-        os.makedirs(os.path.dirname(f'{dirpath}\\data\\val\\'), exist_ok=True)
+    def add_image(image: str, type: str, folder: str):
+        image_path = shutil.copy(
+            batch[image]["image_path"],
+            f'{dirpath}\\finetune\\{folder}'
+        )
+        label_path = shutil.copy(
+            batch[image][f"{task_type}_path"],
+            f'{dirpath}\\finetune\\{folder}'
+        )
+        image_file = image_path.split('\\')[-1]
+        label_file = label_path.split('\\')[-1]
+        datalist[type].append({
+            "image": f'./finetune/{folder}/{image_file}',
+            "label": f'./finetune/{folder}/{label_file}'
+        })
 
-        # Create dataset folder
-        for i, image in enumerate(batch):
-            split = ["training", "train"] if i/len(batch) > validation_split else ["validation", "val"]
-            image_path = shutil.copy(
-                batch[image]["image_path"],
-                f'{dirpath}\\data\\{split[1]}'
-            )
-            label_path = shutil.copy(
-                batch[image][f"{task_type}_path"],
-                f'{dirpath}\\data\\{split[1]}'
-            )
-            image_file = image_path.split('\\')[-1]
-            label_file = label_path.split('\\')[-1]
-            datalist[f"{split[0]}"].append({
-                "image": f'{split[1]}/{image_file}',
-                "label": f'{split[1]}/{label_file}'
-            })
+    with tempfile.TemporaryDirectory() as dirpath:
+        os.makedirs(os.path.dirname(f'{dirpath}\\finetune\\train\\'), exist_ok=True)
+        os.makedirs(os.path.dirname(f'{dirpath}\\finetune\\val\\'), exist_ok=True)
+
+        val_datalist = random.sample(batch.keys(), round(len(batch) * validation_split))
+        train_datalist = [x for x in batch.keys() if x not in val_datalist]
+
+        [add_image(image, "training", "train") for image in train_datalist]
+        [add_image(image, "validation", "val") for image in val_datalist]
 
         # Create datalist config file
-        datalist_file = open(f'{dirpath}\\dataset_0.json', "w+")
+        datalist_file = open(f'{dirpath}\\dataset_1.json', "w+")
         json.dump(datalist, datalist_file, indent=4)
         datalist_file.close()
 
@@ -132,11 +136,11 @@ def prepare_batch_training_data_remote(
         environment_file.close()
 
         # Send files to remote server
-        remote_path = f'~/Prosjekter{KGE_PATH}clara/models/{image_type}/{model}'
+        remote_path = f'~/Prosjekter{mmar_path}'
         scp = SCPClient(ssh_client.get_paramiko_transport())
-        scp.put(f'{dirpath}\\data', recursive=True, remote_path=remote_path)
+        scp.put(f'{dirpath}\\finetune', recursive=True, remote_path=f'~/Prosjekter{finetune_path}')
         scp.put(
-            [f'{dirpath}\\dataset_0.json', f'{dirpath}\\environment.json'],
+            [f'{dirpath}\\dataset_1.json', f'{dirpath}\\environment.json'],
             remote_path=f'{remote_path}/config'
         )
         scp.close()

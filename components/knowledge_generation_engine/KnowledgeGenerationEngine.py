@@ -177,7 +177,7 @@ class KnowledgeGenerationEngine:
     def add_pretrained_model(self, image_type: str, model: str, version: str):
         command = "./components/knowledge_generation_engine/clara/get_pretrained_model.sh"
         flags = f"-t {image_type} -n {model} -v {version}"
-        self.ssh_client.run_ssh_command(command=command, flags=flags, docker=True)
+        self.ssh_client.run_ssh_command(command=command, flags=flags, docker=True, container="aiaa_training")
 
     def train_external_dataset(
             self,
@@ -206,7 +206,7 @@ class KnowledgeGenerationEngine:
         # Start training command
         command = "./components/knowledge_generation_engine/clara/train_model.sh"
         flags = f"-t {image_type} -n {model} -f {train_file}"
-        self.ssh_client.run_ssh_command(command=command, flags=flags, docker=True)
+        self.ssh_client.run_ssh_command(command=command, flags=flags, docker=True, container="aiaa_training")
 
     def train_virtual_register_batch(
         self,
@@ -215,6 +215,7 @@ class KnowledgeGenerationEngine:
         model: str = None,
         batch_id: str = None,
         finetune: bool = False,
+        finetune_path: str = "",
         gpu: str = "",  # "_2gpu OR _4gpu"
         update_batch: bool = True,
         validation_split: float = 0.3
@@ -233,13 +234,14 @@ class KnowledgeGenerationEngine:
             task_type,
             model_str,
             register[batch_no]["dicom_images"],
-            validation_split
+            finetune_path,
+            validation_split,
         )
 
         # Start training command
         command = "./components/knowledge_generation_engine/clara/train_model.sh"
         flags = f"-t {image_type} -n {model_str} -f {train_file}"
-        self.ssh_client.run_ssh_command(command=command, flags=flags, docker=True)
+        self.ssh_client.run_ssh_command(command=command, flags=flags, docker=True, container="aiaa_training")
 
         if(update_batch):
             self.set_new_register_batch(virtual_register_path=virtual_register_path)
