@@ -68,7 +68,7 @@ def prepare_MID_training_data_remote(
         environment_file.close()
 
         # Send configs to remote server
-        remote_path = f'~/Prosjekter{mmar_path}'
+        remote_path = f'/data/hmrydber{mmar_path}'
         scp = SCPClient(ssh_client.get_paramiko_transport())
         scp.put(
             [f'{dirpath}\\dataset_0.json', f'{dirpath}\\environment.json'],
@@ -88,7 +88,7 @@ def prepare_batch_training_data_remote(
 ):
     mmar_path = f"{KGE_PATH}clara/models/{image_type}/{model}"
 
-    remote_dataset: dict[str, list] = ssh_client.get_remote_json(f'Prosjekter{mmar_path}/config/dataset_0.json')
+    remote_dataset: dict[str, list] = ssh_client.get_remote_json(f'{mmar_path}/config/dataset_0.json')
     datalist = remote_dataset
     environment = {
         "DATA_ROOT": finetune_path,
@@ -136,9 +136,9 @@ def prepare_batch_training_data_remote(
         environment_file.close()
 
         # Send files to remote server
-        remote_path = f'~/Prosjekter{mmar_path}'
+        remote_path = f'/data/hmrydber{mmar_path}'
         scp = SCPClient(ssh_client.get_paramiko_transport())
-        scp.put(f'{dirpath}\\finetune', recursive=True, remote_path=f'~/Prosjekter{finetune_path}')
+        scp.put(f'{dirpath}\\finetune', recursive=True, remote_path=f'/data/hmrydber{finetune_path}')
         scp.put(
             [f'{dirpath}\\dataset_1.json', f'{dirpath}\\environment.json'],
             remote_path=f'{remote_path}/config'

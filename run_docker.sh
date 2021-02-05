@@ -12,7 +12,7 @@ done
 
 export NVIDIA_RUNTIME="--runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=0"
 export OPTIONS="--shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864"
-export SOURCE_DIR=/home/hmrydber/Prosjekter/master
+export SOURCE_DIR=/data/hmrydber/master
 export MOUNT_DIR=/master
 export DOCKER_IMAGE=nvcr.io/nvidia/clara-train-sdk:v3.1
 
