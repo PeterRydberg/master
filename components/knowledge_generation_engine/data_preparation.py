@@ -14,6 +14,71 @@ KGE_PATH = '/master/components/knowledge_generation_engine/'
 EXTERNAL_REGISTERS = 'components\\knowledge_generation_engine\\external_registers'
 
 
+def prepare_LUNA16_training_data_remote(
+    image_type: str,
+    task_type: str,
+    model: str = "",
+    use_existing_mmar: bool = False,
+    validation_split: float = 0.3,
+    dataset_subsets: list[str] = [""],
+    ssh_client: SSHClient = SSHClient()
+):
+    if(not use_existing_mmar):
+        # Clone MMAR to new model
+        command = "./components/knowledge_generation_engine/clara/clone_mmar.sh"
+        flags = f"-t {image_type} -n {model}"
+        ssh_client.run_ssh_command(command=command, flags=flags, docker=True, container="aiaa")
+
+    mmar_path = f"{KGE_PATH}clara/models/{image_type}/{model}"
+    datapath = f"{KGE_PATH}external_registers/LUNA16/"
+    datalist = {
+        "training": [],
+        "validation": [],
+        "test": []
+    }
+    environment = {
+        "DATA_ROOT": f"{datapath}",
+        "DATASET_JSON": f"{mmar_path}/config/dataset_0.json",
+        "PROCESSING_TASK": task_type,
+        "MMAR_CKPT_DIR": "models",
+        "MMAR_EVAL_OUTPUT_PATH": "eval",
+        "PRETRAIN_WEIGHTS_FILE": "/var/tmp/resnet50_weights_tf_dim_ordering_tf_kernels.h5"
+    }
+
+    with tempfile.TemporaryDirectory() as dirpath:
+        for dir in dataset_subsets:
+            directory = f"{EXTERNAL_REGISTERS}/LUNA16/{dir}"
+            data_pairs = [{
+                "image": f"./{dir}-conv/{filename.split('.mhd')[0]}.nii.gz",
+                "label": f"./seg-lungs-LUNA16-conv/{filename.split('.mhd')[0]}.nii.gz"
+            } for filename in os.listdir(directory) if filename.endswith(".mhd")]
+
+            val_datalist = random.sample(data_pairs, round(len(data_pairs) * validation_split))
+            train_datalist = [x for x in data_pairs if x not in val_datalist]
+
+            datalist["training"].extend(train_datalist)
+            datalist["validation"].extend(val_datalist)
+
+        # Create datalist config file
+        datalist_file = open(f'{dirpath}\\dataset_0.json', "w+")
+        json.dump(datalist, datalist_file, indent=4)
+        datalist_file.close()
+
+        # Create environment config file
+        environment_file = open(f'{dirpath}\\environment.json', "w+")
+        json.dump(environment, environment_file, indent=4)
+        environment_file.close()
+
+        # Send configs to remote server
+        remote_path = f'/data/hmrydber{mmar_path}'
+        scp = SCPClient(ssh_client.get_paramiko_transport())
+        scp.put(
+            [f'{dirpath}\\dataset_0.json', f'{dirpath}\\environment.json'],
+            remote_path=f'{remote_path}/config'
+        )
+        scp.close()
+
+
 def prepare_MID_training_data_remote(
     image_type: str,
     task_type: str,

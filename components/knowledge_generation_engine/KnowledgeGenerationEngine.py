@@ -14,7 +14,7 @@ from SSHClient import SSHClient
 from DefaultSegmentationModels import DefaultSegmentationModels
 from components.digital_twin.DigitalTwin import DigitalTwin
 from components.digital_twin.DicomImages import Image
-from .data_preparation import prepare_MID_training_data_remote, prepare_batch_training_data_remote
+from .data_preparation import prepare_LUNA16_training_data_remote, prepare_MID_training_data_remote, prepare_batch_training_data_remote
 
 # In order to use IDE type checking, import is not actually used
 from typing import TYPE_CHECKING
@@ -188,20 +188,32 @@ class KnowledgeGenerationEngine:
             finetune: bool = False,
             gpu: str = "",  # "_2gpu OR _4gpu"
             validation_split: float = 0.3,
-            dataset_name: str = ""
+            dataset_name: str = "",
+            dataset_subsets: list[str] = [""],
     ):
         train_file = f"train{gpu.lower()}_finetune.sh" if finetune else f"train{gpu.lower()}.sh"
 
         # Configures remote training to use already downloaded dataset
-        prepare_MID_training_data_remote(
+        # prepare_MID_training_data_remote(
+        #     image_type,
+        #     task_type,
+        #     model,
+        #     use_existing_mmar,
+        #     validation_split,
+        #     dataset_name,
+        #     self.ssh_client
+        # )
+
+        prepare_LUNA16_training_data_remote(
             image_type,
             task_type,
             model,
             use_existing_mmar,
             validation_split,
-            dataset_name,
+            dataset_subsets,
             self.ssh_client
         )
+        return
 
         # Start training command
         command = "./components/knowledge_generation_engine/clara/train_model.sh"
