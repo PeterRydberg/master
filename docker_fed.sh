@@ -12,7 +12,7 @@ export OPTIONS="--shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864"
 export SOURCE_DIR=/data/hmrydber/master
 export MOUNT_DIR=/master
 export DOCKER_IMAGE=nvcr.io/nvidia/clara-train-sdk:v3.1
-export DOCKER_NAME=aiaa_federate_learning
+export DOCKER_NAME=aiaa_federated_learning
 export LOCAL_PORT=9002
 export REMOTE_PORT=8002
 export LOCAL_PORT_ADM=9003
