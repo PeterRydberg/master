@@ -7,4 +7,4 @@ while getopts t:g: flag; do
     esac
 done
 
-srun -N1 -n1 -c2 --mem-per-cpu=1024 --partition=HEID --gres=$GPUS --time=$TIME_LIMIT -w heid --pty bash
+srun -N1 -n1 -c2 --mem-per-cpu=1024 --partition=HEID --gres=$GPUS --time=$TIME_LIMIT -w heid -D /data/hmrydber/master/ --pty bash
