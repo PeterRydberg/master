@@ -16,12 +16,14 @@ export DOCKER_NAME=aiaa_tensorboard
 export LOCAL_PORT=9001
 export REMOTE_PORT=6006
 
+docker exec -it $DOCKER_NAME /bin/bash \
+|| \
 docker run $NVIDIA_RUNTIME $OPTIONS -it --rm \
--p $LOCAL_PORT:$REMOTE_PORT \
--v $SOURCE_DIR:$MOUNT_DIR \
--w $MOUNT_DIR \
---gpus $GPUS \
---name $DOCKER_NAME \
---user "$(id -u):$(id -g)" -v /etc/passwd:/etc/passwd -v /etc/group:/etc/group \
-$DOCKER_IMAGE \
-/bin/bash
+    -p $LOCAL_PORT:$REMOTE_PORT \
+    -v $SOURCE_DIR:$MOUNT_DIR \
+    -w $MOUNT_DIR \
+    --gpus ${GPUS:-0} \
+    --name $DOCKER_NAME \
+    --user "$(id -u):$(id -g)" -v /etc/passwd:/etc/passwd -v /etc/group:/etc/group \
+    $DOCKER_IMAGE \
+    /bin/bash
