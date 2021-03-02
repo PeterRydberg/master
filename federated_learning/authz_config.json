@@ -46,14 +46,14 @@
     }
   },
   "users": {
-    "admin@nvidia.com": {
-      "org": "nvidia",
+    "admin0@fed_server.com": {
+      "org": "fed_server",
       "roles": [
         "super"
       ]
     },
-    "researcher@nvidia.com": {
-      "org": "nvidia",
+    "researcher@fed_server.com": {
+      "org": "fed_server",
       "roles": [
         "lead_it",
         "site_researcher"
@@ -92,13 +92,8 @@
     "admin1@fl_client_org1.org": {
       "org": "fl_client_org1",
       "roles": [
-        "lead_it"
-      ]
-    },
-    "admin2@fl_client_org1.org": {
-      "org": "fl_client_org1",
-      "roles": [
-        "lead_it"
+        "lead_it",
+	"super"
       ]
     }
   },
@@ -111,7 +106,7 @@
       "relaxed",
       "general"
     ],
-    "nvidia": [
+    "fed_server": [
       "general",
       "relaxed"
     ],
@@ -121,7 +116,7 @@
     ]
   },
   "sites": {
-    "server": "nvidia",
+    "server": "fed_server",
     "org2": "org2",
     "org1-a": "org1",
     "org1-b": "org1",
