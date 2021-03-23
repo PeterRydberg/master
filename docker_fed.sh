@@ -7,11 +7,11 @@ while getopts g: flag; do
 done
 
 
-export NVIDIA_RUNTIME="--runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=0"
+export NVIDIA_RUNTIME="--runtime=nvidia" #-e NVIDIA_VISIBLE_DEVICES=0"
 export OPTIONS="--shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864"
 export SOURCE_DIR=/data/hmrydber/master
 export MOUNT_DIR=/master
-export DOCKER_IMAGE=nvcr.io/nvidia/clara-train-sdk:v3.1
+export DOCKER_IMAGE=nvcr.io/nvidia/clara-train-sdk:v3.1.01
 export DOCKER_NAME=aiaa_federated_learning
 export LOCAL_PORT=9002
 export REMOTE_PORT=8002
