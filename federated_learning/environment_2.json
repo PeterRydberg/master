@@ -1,0 +1,8 @@
+{
+    "DATA_ROOT": "/master/components/knowledge_generation_engine/external_registers/medical_image_decathlon/Task06_Lung/",
+    "DATASET_JSON": "/master/federated_learning/experiment/flclient2/run_1/mmar_flclient2/config/dataset_2.json",
+    "PROCESSING_TASK": "segmentation",
+    "MMAR_CKPT_DIR": "models",
+    "MMAR_EVAL_OUTPUT_PATH": "eval",
+    "PRETRAIN_WEIGHTS_FILE": "/var/tmp/resnet50_weights_tf_dim_ordering_tf_kernels.h5"
+}
