@@ -1,0 +1,8 @@
+{
+    "DATA_ROOT": "/master/components/knowledge_generation_engine/external_registers/CHAOS_Train_Sets/Train_Sets/MR",
+    "DATASET_JSON": "/master/federated_learning/SpleenConfigs/CHAOS/dataset_0.json",
+    "PROCESSING_TASK": "segmentation",
+    "MMAR_EVAL_OUTPUT_PATH": "eval",
+    "MMAR_CKPT_DIR": "models",
+    "PRETRAIN_WEIGHTS_FILE": "/var/tmp/resnet50_weights_tf_dim_ordering_tf_kernels.h5"
+}
