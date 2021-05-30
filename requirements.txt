@@ -1,4 +1,4 @@
-aiaa-client @ file:///C:/Users/peter/Prosjekter/ai-assisted-annotation-client/dist/aiaa_client-1.0.2-py3-none-any.whl
+aiaa-client @ file:///path
 autopep8==1.5.4
 bcrypt==3.2.0
 boto3==1.14.58
