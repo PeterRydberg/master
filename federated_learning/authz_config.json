@@ -95,6 +95,13 @@
         "lead_it",
 	"super"
       ]
+    },
+    "admin2@fl_client_org2.org": {
+      "org": "fl_client_org2",
+      "roles": [
+        "lead_it",
+	"super"
+      ]
     }
   },
   "orgs": {
@@ -113,6 +120,10 @@
     "fl_client_org1": [
       "general",
       "relaxed"
+    ],
+    "fl_client_org2": [
+      "general",
+      "relaxed"
     ]
   },
   "sites": {
@@ -121,6 +132,8 @@
     "org1-a": "org1",
     "org1-b": "org1",
     "flclient1": "fl_client_org1",
-    "flclient2": "fl_client_org1"
+    "flclient2": "fl_client_org1",
+    "flclient3": "fl_client_org2",
+    "flclient4": "fl_client_org2"
   }
 }

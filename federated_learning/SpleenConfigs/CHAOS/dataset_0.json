@@ -13,85 +13,85 @@
   "training": [
     {
       "image": "./image/1.nii.gz",
-      "label": "./label/1.nii.gz"
+      "label": "./label_cent/1.nii.gz"
     },
     {
       "image": "./image/2.nii.gz",
-      "label": "./label/2.nii.gz"
+      "label": "./label_cent/2.nii.gz"
     },
     {
       "image": "./image/3.nii.gz",
-      "label": "./label/3.nii.gz"
+      "label": "./label_cent/3.nii.gz"
     },
     {
       "image": "./image/20.nii.gz",
-      "label": "./label/20.nii.gz"
+      "label": "./label_cent/20.nii.gz"
     },
     {
       "image": "./image/21.nii.gz",
-      "label": "./label/21.nii.gz"
+      "label": "./label_cent/21.nii.gz"
     },
     {
       "image": "./image/22.nii.gz",
-      "label": "./label/22.nii.gz"
+      "label": "./label_cent/22.nii.gz"
     },
     {
       "image": "./image/31.nii.gz",
-      "label": "./label/31.nii.gz"
+      "label": "./label_cent/31.nii.gz"
     },
     {
       "image": "./image/32.nii.gz",
-      "label": "./label/32.nii.gz"
+      "label": "./label_cent/32.nii.gz"
     },
     {
       "image": "./image/33.nii.gz",
-      "label": "./label/33.nii.gz"
+      "label": "./label_cent/33.nii.gz"
     },
     {
       "image": "./image/34.nii.gz",
-      "label": "./label/34.nii.gz"
+      "label": "./label_cent/34.nii.gz"
     },
     {
       "image": "./image/36.nii.gz",
-      "label": "./label/36.nii.gz"
+      "label": "./label_cent/36.nii.gz"
     },
     {
       "image": "./image/37.nii.gz",
-      "label": "./label/37.nii.gz"
+      "label": "./label_cent/37.nii.gz"
     },
     {
       "image": "./image/38.nii.gz",
-      "label": "./label/38.nii.gz"
+      "label": "./label_cent/38.nii.gz"
     },
     {
       "image": "./image/39.nii.gz",
-      "label": "./label/39.nii.gz"
+      "label": "./label_cent/39.nii.gz"
     }
   ],
   "validation": [        
     {
       "image": "./image/5.nii.gz",
-      "label": "./label/5.nii.gz"
+      "label": "./label_cent/5.nii.gz"
     },
     {
       "image": "./image/8.nii.gz",
-      "label": "./label/8.nii.gz"
+      "label": "./label_cent/8.nii.gz"
     },
     {
       "image": "./image/10.nii.gz",
-      "label": "./label/10.nii.gz"
+      "label": "./label_cent/10.nii.gz"
     },
     {
       "image": "./image/13.nii.gz",
-      "label": "./label/13.nii.gz"
+      "label": "./label_cent/13.nii.gz"
     },
     {
       "image": "./image/15.nii.gz",
-      "label": "./label/15.nii.gz"
+      "label": "./label_cent/15.nii.gz"
     },
     {
       "image": "./image/19.nii.gz",
-      "label": "./label/19.nii.gz"
+      "label": "./label_cent/19.nii.gz"
     }
   ]
 }

@@ -36,10 +36,16 @@ fl_clients:
   - org: fl_client_org1
     client_name: flclient2
     email: flclient2@fl_client_org1.org
+  - org: fl_client_org2
+    client_name: flclient3
+  - org: fl_client_org2
+    client_name: flclient4
 
 admin_clients:
   # email is the user name for admin authentication.  Hence, it must be unique within the project
   - org: fl_client_org1
     email: admin1@fl_client_org1.org
+  - org: fl_client_org2
+    email: admin2@fl_client_org2.org
   - org: fed_server
     email: admin0@fed_server.com

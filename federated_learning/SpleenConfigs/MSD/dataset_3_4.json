@@ -1,0 +1,57 @@
+{
+    "description": "Spleen Segmentation",
+    "labels": {
+        "0": "background",
+        "1": "spleen"
+    },
+    "licence": "CC-BY-SA 4.0",
+    "modality": {
+        "0": "CT"
+    },
+    "name": "Spleen",
+    "numTest": 20,
+    "numTraining": 19,
+    "reference": "Memorial Sloan Kettering Cancer Center",
+    "release": "1.0 06/08/2018",
+    "tensorImageSize": "3D",
+    "training": [
+        {
+            "image": "imagesTr/spleen_6.nii.gz",
+            "label": "labelsTr/spleen_6.nii.gz"
+        },
+        {
+            "image": "imagesTr/spleen_61.nii.gz",
+            "label": "labelsTr/spleen_61.nii.gz"
+        },
+        {
+            "image": "imagesTr/spleen_10.nii.gz",
+            "label": "labelsTr/spleen_10.nii.gz"
+        },
+        {
+            "image": "imagesTr/spleen_38.nii.gz",
+            "label": "labelsTr/spleen_38.nii.gz"
+        },
+        {
+            "image": "imagesTr/spleen_45.nii.gz",
+            "label": "labelsTr/spleen_45.nii.gz"
+        },
+        {
+            "image": "imagesTr/spleen_26.nii.gz",
+            "label": "labelsTr/spleen_26.nii.gz"
+        },
+        {
+            "image": "imagesTr/spleen_49.nii.gz",
+            "label": "labelsTr/spleen_49.nii.gz"
+        }
+    ],
+    "validation": [
+        {
+            "image": "imagesTr/spleen_33.nii.gz",
+            "label": "labelsTr/spleen_33.nii.gz"
+        },
+        {
+            "image": "imagesTr/spleen_9.nii.gz",
+            "label": "labelsTr/spleen_9.nii.gz"
+        }
+    ]
+}
